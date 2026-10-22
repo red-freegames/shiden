@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a0b2e">
+<title>目算で放て！重力零点「紫電」</title>
+<meta name="description" content="風船のように伸縮するゲージを目押しして、青（引力）と赤（斥力）を同じ出力で釣り合わせろ。高出力ほど爆速になるゲージ、全5ステージ、最後は呪いの王。一撃系バランス・クソゲー。">
+<meta property="og:title" content="目算で放て！重力零点「紫電」">
+<meta property="og:description" content="青と赤を目押しで釣り合わせ、重力零点「紫電」で呪いを祓え。高出力ほど爆速になるゲージ、全5ステージ。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://red-freegames.github.io/shiden/">
+<meta property="og:image" content="https://red-freegames.github.io/shiden/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://red-freegames.github.io/shiden/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Dela+Gothic+One&family=Yuji+Boku&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1a0b2e; --ink:#fff8e7; --line:#0d0418;
+  --blue:#2fa8ff; --red:#ff3b5c; --purple:#b84dff; --bp:#5b5bff; --rp:#ff3fa8;
+  --yellow:#ffe14d; --green:#4dffa6;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(#ffffff12 1.2px,transparent 1.4px),radial-gradient(circle at 50% 30%,#3a1466 0,transparent 60%);
+  background-size:9px 9px,100% 100%;
+  color:var(--ink);font-family:"DotGothic16",system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
+}
+#app{position:relative;max-width:480px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:8px;
+  padding:max(8px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));}
+#fx,#speed{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#fx{z-index:6} #speed{z-index:5}
+.pop{font-family:"Dela Gothic One","DotGothic16",sans-serif}
+
+/* ===== 画面シェイク ===== */
+.shake1{animation:shake1 .28s}
+.shake2{animation:shake2 .55s}
+@keyframes shake1{20%{transform:translate(-5px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,-2px)}80%{transform:translate(3px,2px)}}
+@keyframes shake2{
+  10%{transform:translate(-16px,10px) rotate(-1.5deg)}20%{transform:translate(14px,-12px) rotate(1.2deg)}
+  30%{transform:translate(-12px,-8px) rotate(-1deg)}40%{transform:translate(12px,10px) rotate(1deg)}
+  55%{transform:translate(-8px,6px)}70%{transform:translate(6px,-4px)}85%{transform:translate(-3px,2px)}}
+.rumble{animation:rumble .09s infinite alternate}
+@keyframes rumble{to{transform:translate(1.5px,-1.5px)}}
+
+/* ===== ヘッダー ===== */
+header{position:relative;z-index:2;display:flex;align-items:center;gap:8px}
+.stage-badge{background:var(--yellow);color:var(--line);border:3px solid var(--line);box-shadow:3px 3px 0 var(--line);
+  padding:4px 10px;font-size:15px;border-radius:8px;white-space:nowrap;transform:rotate(-3deg)}
+.rules{flex:1;font-size:12px;line-height:1.35;background:rgba(0,0,0,.4);border:2px solid #ffffff30;border-radius:8px;padding:4px 8px}
+.rules b{color:var(--yellow)}
+.icon-btn{width:40px;height:40px;border-radius:10px;border:3px solid var(--line);background:#fff;font-size:18px;box-shadow:3px 3px 0 var(--line)}
+/* ===== RED FREE GAMES 共通：HOME・他のゲーム・要望フォーム・フッター ===== */
+.home-btn{width:auto;padding:0 7px;font-size:11px;font-weight:900;color:var(--line);white-space:nowrap}
+a.big{text-align:center;text-decoration:none}
+.b-more{background:#fff;font-size:18px!important}
+.fb-link{display:block;margin-top:10px;font-size:12.5px;font-weight:800;color:#5a4a70;text-decoration:underline;text-align:center}
+#cutin .fb-link{color:#e6d6ff;margin-top:2px}
+.site-foot{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:14px;font-size:11.5px;font-weight:800;color:#5a4a70}
+.site-foot .coffee{background:#ffdd57;color:#2a1a14;border:2px solid #2a1a14;border-radius:99px;padding:6px 12px;text-decoration:none}
+.site-foot .pv{color:#5a4a70;font-weight:600;text-decoration:underline}
+
+/* ===== ナビゲーター（紫衣の大魔導師・零） ===== */
+.navi{position:relative;z-index:7;display:flex;align-items:center;gap:10px}
+.avatar{position:relative;flex:0 0 auto;width:64px;height:64px;border:3px solid var(--line);border-radius:14px;
+  background:radial-gradient(#0000001a 1px,transparent 1.2px) 0 0/5px 5px,linear-gradient(135deg,#ffd34d,#b84dff 45%,#3a1466);
+  box-shadow:3px 3px 0 var(--line)}
+.avatar svg{width:100%;height:100%;display:block;border-radius:11px}
+.avatar.bounce{animation:bounce .35s}
+@keyframes bounce{40%{transform:translateY(-8px) rotate(-4deg)}}
+.manpu{position:absolute;right:-12px;top:-14px;font-size:24px;opacity:0;transform:scale(0);transition:transform .2s cubic-bezier(.3,1.8,.5,1),opacity .2s}
+.manpu.on{opacity:1;transform:scale(1)}
+.navi-name{position:absolute;left:0;bottom:-9px;width:64px;text-align:center;font-size:9px;background:var(--line);color:#fff;border-radius:4px}
+.bubble{position:relative;flex:1;min-height:52px;background:#fff;color:var(--line);border:3px solid var(--line);border-radius:14px;
+  padding:7px 11px;font-size:14px;line-height:1.45;box-shadow:3px 3px 0 var(--line);display:flex;align-items:center}
+.bubble::before{content:"";position:absolute;left:-13px;top:50%;margin-top:-8px;border:8px solid transparent;border-right:12px solid var(--line);border-left:0}
+.bubble::after{content:"";position:absolute;left:-7px;top:50%;margin-top:-5px;border:5px solid transparent;border-right:8px solid #fff;border-left:0}
+
+/* ===== バトル画面（3人称・対面構図） ===== */
+#arena{position:relative;z-index:1;flex:1;min-height:0;border:4px solid var(--line);border-radius:18px;overflow:hidden;
+  background:#030006;box-shadow:0 0 0 3px #ffffff22 inset,5px 5px 0 var(--line)}
+/* 背景（領域空間）とエネルギー球はCanvasで描画 */
+#bgCv,#orbCv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#bgCv{z-index:0} #orbCv{z-index:3}   /* 球は体の向こう側：敵より手前、零の体より奥 */
+
+#enemy{position:absolute;left:70%;top:42%;height:36%;aspect-ratio:1;transform:translate(-50%,-100%);z-index:2;
+  transition:transform .6s cubic-bezier(.5,-0.3,.7,1.3),opacity .4s;filter:drop-shadow(0 10px 10px #000)}
+#enemy .e-inner,#enemy svg{width:100%;height:100%;display:block}
+/* --rim：エネルギーに照らされる輪郭光の色 */
+#hero{--rim:#5a4a7a;position:absolute;left:34%;bottom:-4%;height:50%;aspect-ratio:200/220;transform:translateX(-50%);z-index:4}
+#hero svg{width:100%;height:100%;display:block;filter:drop-shadow(0 -2px 8px #000);transition:filter .2s}
+#hero.aura-blue{--rim:#6ad0ff} #hero.aura-blue svg{filter:drop-shadow(0 0 16px #2fa8ff77)}
+#hero.aura-red{--rim:#ff6a86} #hero.aura-red svg{filter:drop-shadow(0 0 16px #ff3b5c77)}
+#hero.aura-purple{--rim:#d08aff} #hero.aura-purple svg{filter:drop-shadow(0 0 20px #b84dff99)}
+#hero.charging svg{animation:heroPulse .1s infinite alternate}
+@keyframes heroPulse{to{transform:translate(1px,-1px)}}
+
+.orb{position:absolute;top:31%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);z-index:5;
+  transition:left .5s ease-in,top .5s ease-in,width .08s,height .08s,opacity .3s}
+/* .orb / #fusion は位置と大きさの目印だけ。見た目は #orbCv に描く */
+.orb.blue{left:69%} .orb.red{left:31%}
+.orb.charging{animation:wobble .16s infinite alternate}
+@keyframes wobble{to{transform:translate(-50%,-50%) scale(1.07,.93) rotate(5deg)}}
+#fusion{position:absolute;left:50%;top:12%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);z-index:6;transition:width .35s,height .35s}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:9;pointer-events:none}
+
+/* ポケモン風ステータス枠 */
+.plate{position:absolute;z-index:7;background:#fff8e7;color:var(--line);border:3px solid var(--line);box-shadow:3px 3px 0 #000;font-size:11px;line-height:1.35;padding:4px 8px}
+#plateE{left:3%;top:4%;width:50%;border-radius:10px 10px 10px 2px}
+#plateH{right:3%;bottom:4%;width:44%;border-radius:10px 10px 2px 10px}
+.plate .nm{font-weight:bold;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plate .hpw{display:flex;align-items:center;gap:4px;margin-top:2px}
+.plate .hpw span{font-size:9px;background:#e0a000;color:#fff;border-radius:3px;padding:0 3px}
+.plate .hp{flex:1;height:7px;border:2px solid var(--line);background:#400;border-radius:4px;overflow:hidden}
+.plate .hp i{display:block;height:100%;width:100%;background:var(--green);transition:width .5s}
+.plate .vals b{font-size:14px} .plate .vb{color:#0a6fd6} .plate .vr{color:#d6153a}
+
+.e-inner.hit{animation:shake1 .3s 2}
+.boom{position:absolute;font-size:70px;z-index:8;transform:translate(-50%,-50%) scale(.2);animation:boom .7s forwards}
+@keyframes boom{60%{transform:translate(-50%,-50%) scale(1.6);opacity:1}100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+.gogo{position:absolute;z-index:6;font-size:26px;color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;
+  pointer-events:none;animation:gogo .7s forwards;white-space:nowrap}
+@keyframes gogo{0%{opacity:0;transform:scale(.4) rotate(var(--r))}25%{opacity:1;transform:scale(1.15) rotate(var(--r))}100%{opacity:0;transform:translateY(-14px) scale(1) rotate(var(--r))}}
+/* 抉れたクレーターと削り跡 */
+#crater{position:absolute;width:46%;height:10%;transform:translate(-50%,-50%) scale(.3);border-radius:50%;opacity:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,#000 0 30%,#1a0610 42%,#3a1030 56%,transparent 64%),
+    repeating-conic-gradient(from 7deg,#c070ff66 0 1.5deg,transparent 1.5deg 14deg,#c070ff33 14deg 15deg,transparent 15deg 31deg);
+  box-shadow:0 0 30px 6px #b84dff44;transition:opacity .4s,transform .4s cubic-bezier(.3,1.6,.6,1)}
+#crater.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#groove{position:absolute;width:56px;transform-origin:50% 100%;opacity:0;z-index:1;pointer-events:none;transition:opacity .5s;
+  background:linear-gradient(90deg,transparent,#ff6a0066 6%,#000a 16%,#000d 50%,#000a 84%,#ff6a0066 94%,transparent);border-radius:40% 40% 0 0}
+#groove.on{opacity:1}
+
+/* ===== コミック風ポップアップ文字 ===== */
+#popText{position:fixed;left:50%;top:40%;width:340px;height:240px;margin:-120px 0 0 -170px;z-index:15;pointer-events:none;display:none}
+#popText.show{display:block;animation:popin 1.15s forwards}
+#popText .wrap{position:absolute;inset:0;filter:drop-shadow(5px 5px 0 #000)}
+#popText .burst{position:absolute;inset:6px;background:var(--yellow)}
+#popText .burst.inner{inset:34px;background:#fff;opacity:.55}
+#popText .txt{position:absolute;left:0;right:0;top:50%;transform:translateY(-58%) rotate(-7deg);text-align:center;
+  font-size:66px;line-height:1;color:#fff;-webkit-text-stroke:4px #000;paint-order:stroke fill;text-shadow:5px 5px 0 #000;white-space:nowrap}
+#popText .sub{position:absolute;left:0;right:0;bottom:44px;text-align:center;transform:rotate(-7deg);font-size:15px;color:#000;font-weight:bold}
+@keyframes popin{0%{transform:scale(3) rotate(12deg);opacity:0}14%{transform:scale(.88) rotate(-2deg);opacity:1}24%{transform:scale(1.06)}34%{transform:scale(1)}82%{transform:scale(1);opacity:1}100%{transform:scale(1.25);opacity:0}}
+
+/* ===== メーター・ボタン ===== */
+#meterWrap{position:relative;z-index:2}
+#readout{display:flex;align-items:baseline;justify-content:center;gap:8px;height:50px}
+#readout .num{font-size:46px;line-height:1;text-shadow:3px 3px 0 var(--line)}
+#readout .unit{font-size:20px}
+#readout .who{font-size:15px;padding:2px 8px;border-radius:6px;border:2px solid var(--line);transform:rotate(-4deg)}
+#meter{position:relative;height:26px;margin:4px 0 10px;border:3px solid var(--line);border-radius:14px;background:#0b0316;overflow:hidden;box-shadow:3px 3px 0 var(--line)}
+#meterFill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--blue)}
+#tolZone{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,#ffe14d66 0 6px,#ffe14d22 6px 12px);border-left:2px solid var(--yellow);border-right:2px solid var(--yellow);display:none}
+#ghost{position:absolute;top:-2px;bottom:-2px;width:3px;background:#9fe0ff;display:none}
+#thr{position:absolute;top:0;bottom:0;width:0;border-left:3px dashed var(--green)}
+#thrLbl{position:absolute;right:4px;top:3px;font-size:11px;color:var(--green);text-shadow:1px 1px 0 #000}
+.big{display:block;width:100%;border:4px solid var(--line);border-radius:22px;color:var(--line);font-size:30px;letter-spacing:.08em;
+  padding:22px 0;box-shadow:0 8px 0 var(--line);transition:transform .05s,box-shadow .05s;cursor:pointer;touch-action:none}
+.big:active,.big.pressed{transform:translateY(6px);box-shadow:0 2px 0 var(--line)}
+.big small{display:block;font-size:13px;letter-spacing:0;margin-top:4px;font-family:"DotGothic16",sans-serif}
+#chargeBtn{background:radial-gradient(#ffffff40 1.4px,transparent 1.6px) 0 0/8px 8px,linear-gradient(#7fd0ff,var(--blue));height:108px;padding:0}
+#chargeBtn.redmode{background:radial-gradient(#ffffff40 1.4px,transparent 1.6px) 0 0/8px 8px,linear-gradient(#ff9aab,var(--red))}
+#chargeBtn:disabled{filter:grayscale(1) brightness(.6)}
+
+/* ===== オーバーレイ ===== */
+.overlay{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:18px;background:#0d0418cc}
+.overlay.show{display:flex}
+.card{width:100%;max-width:440px;max-height:100%;overflow:auto;background:var(--ink);color:var(--line);border:4px solid var(--line);border-radius:22px;box-shadow:8px 8px 0 #000;padding:20px 18px;text-align:center}
+.card h1{font-size:clamp(26px,8vw,36px);line-height:1.15;margin:6px 0 4px}
+.card h1 .shi{display:inline-block;color:var(--purple);font-size:1.3em;-webkit-text-stroke:2px var(--line);text-shadow:4px 4px 0 var(--line);transform:rotate(-4deg)}
+.card .yomi{font-size:11px;letter-spacing:.2em;margin-bottom:10px}
+.card p{font-size:14px;line-height:1.6;margin:8px 0}
+.card .btns{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.card .big{font-size:22px;padding:16px 0}
+.b-y{background:var(--yellow)} .b-p{background:var(--purple);color:#fff} .b-w{background:#fff} .b-x{background:#000;color:#fff}
+.how{text-align:left;background:#fff;border:3px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.6}
+.how .cB{color:#0a6fd6;font-weight:bold} .how .cR{color:#d6153a;font-weight:bold} .how .cP{color:#8a2be2;font-weight:bold}
+.card .navi{margin:10px 0 4px;text-align:left}
+.intro-art{width:120px;height:120px;margin:4px auto 0;filter:drop-shadow(3px 3px 0 #0006)}
+.intro-art svg{width:100%;height:100%}
+
+/* ===== リザルト・カットイン ===== */
+#cutin{flex-direction:column;padding:0;background:transparent}
+#cutin.show{background:#0d0418b8}
+#cutin .band{position:relative;width:130%;transform:rotate(-6deg) translateX(-120%);padding:16px 0 12px;border-top:6px solid var(--line);border-bottom:6px solid var(--line);text-align:center;animation:slide .45s cubic-bezier(.2,1.4,.5,1) forwards}
+@keyframes slide{to{transform:rotate(-6deg) translateX(0)}}
+#cutin .title{font-size:clamp(40px,13vw,62px);line-height:1;color:#fff;-webkit-text-stroke:3px var(--line);paint-order:stroke fill;text-shadow:5px 5px 0 var(--line)}
+#cutin .sub{font-size:16px;margin-top:6px;color:#fff;text-shadow:2px 2px 0 #000}
+#cutin .navi,#cutin .stats,#cutin .btns{width:calc(100% - 36px);max-width:440px;opacity:0}
+#cutin .navi{margin-top:22px;animation:fadein .3s .45s forwards}
+#cutin .navi .avatar{width:84px;height:84px}
+#cutin .navi .navi-name{width:84px}
+#cutin .navi .bubble{font-size:16px;min-height:64px}
+#cutin .stats{margin-top:14px;background:#000a;border:2px solid #fff5;border-radius:12px;padding:8px 12px;font-size:14px;line-height:1.65;animation:fadein .3s .6s forwards}
+#cutin .stats b{color:var(--yellow)}
+#cutin .stats .score{font-size:20px}
+#cutin .btns{display:flex;flex-direction:column;gap:11px;margin-top:14px;animation:fadein .3s .75s forwards}
+#cutin .big{font-size:20px;padding:13px 0}
+@keyframes fadein{to{opacity:1}}
+.ok{color:var(--green)!important} .ng{color:#ff7a8f!important}
+
+/* ===== 時間停止 ===== */
+body.timestop #app,body.timestop #fx,body.timestop #speed{filter:invert(1) grayscale(1) contrast(1.35)}
+body.timestop #app *{animation-play-state:paused!important}
+
+/* ===== アニメ風シネマ演出 ===== */
+#cine{position:fixed;inset:0;z-index:16;pointer-events:none;overflow:hidden}
+#cine.active{pointer-events:auto}
+#cine .skip{position:absolute;right:12px;bottom:max(12px,env(safe-area-inset-bottom));font-size:11px;color:#fff9;display:none}
+#cine.active .skip{display:block}
+#cdark{position:absolute;inset:0;background:#000;opacity:0;transition:opacity .35s}
+#cdark.on{opacity:.82}
+#cflash{position:absolute;inset:0;background:#fff;opacity:0}
+#kodou{position:absolute;left:0;right:0;top:36%;text-align:center;font-size:clamp(54px,17vw,84px);color:#fff;
+  -webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:0 0 18px #ff2a55,6px 6px 0 #000;opacity:0}
+#kodou.on{animation:kodou .95s forwards}
+@keyframes kodou{0%{opacity:0;transform:scale(1.8)}12%{opacity:1;transform:scale(.92)}22%{transform:scale(1.06)}35%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(1)}}
+.cband{position:absolute;left:-5%;right:-5%;top:50%;height:220px;margin-top:-110px;transform:skewY(-7deg) scaleY(0);
+  transition:transform .22s cubic-bezier(.3,1.5,.6,1);overflow:hidden;
+  background:linear-gradient(100deg,#2a0d52,#6a2bd6 60%,#b84dff);border-top:6px solid #ffd34d;border-bottom:6px solid #ffd34d;box-shadow:0 0 0 4px #000,0 0 40px #b84dff}
+.cband.on{transform:skewY(-7deg) scaleY(1)}
+.cband.gray{background:linear-gradient(100deg,#1c1c22,#4a4a55 60%,#6d6d78);border-color:#fff;box-shadow:0 0 0 4px #000}
+.cband .lines{position:absolute;inset:-20px 0;background:repeating-linear-gradient(90deg,#ffffff22 0 2px,transparent 2px 26px,#ffffff10 26px 27px,transparent 27px 61px);animation:lines .25s linear infinite}
+@keyframes lines{to{background-position:-61px 0}}
+.cband .inner{position:relative;height:100%;display:flex;align-items:center;gap:14px;padding:0 9%;transform:skewY(7deg)}
+.cband .avatar{width:118px;height:118px;flex:0 0 118px;overflow:hidden;transform:translateX(-170%) rotate(-8deg);transition:transform .4s .08s cubic-bezier(.2,1.3,.5,1)}
+.cband.on .avatar{transform:translateX(0) rotate(-4deg)}
+.cband .avatar::after{content:"";position:absolute;top:-20%;left:-60%;width:30%;height:140%;background:linear-gradient(90deg,transparent,#fff,transparent);transform:rotate(25deg);opacity:0}
+.cband.on .avatar::after{animation:glint .6s .5s}
+@keyframes glint{0%{left:-60%;opacity:.9}100%{left:130%;opacity:.9}}
+.ctext{flex:1;color:#fff;min-width:0}
+.cname{display:inline-block;font-size:12px;background:#000;color:var(--yellow);padding:1px 8px;border-radius:4px;margin-bottom:6px}
+#chantTxt{font-size:17px;line-height:1.55;text-shadow:2px 2px 0 #000;min-height:3.1em}
+#finisher{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  font-family:"Yuji Boku","Yu Mincho","Hiragino Mincho ProN",serif;background:radial-gradient(circle,#b84dff77 0,#2a0d5233 45%,transparent 70%)}
+#finisher.on{display:flex}
+#finisher .l1{font-size:min(12vw,58px);color:#fff;-webkit-text-stroke:2px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000;
+  transform:rotate(-6deg) translateX(-8%);clip-path:inset(0 100% 0 0);animation:brush .35s .05s forwards}
+#finisher .ruby{font-size:12px;letter-spacing:.3em;color:#e6c6ff;transform:rotate(-6deg) translateX(-8%);opacity:0;animation:fadein .3s .3s forwards}
+#finisher .l2{font-size:min(15vw,78px);line-height:1.15;color:#f0dcff;-webkit-text-stroke:3px #1a0030;paint-order:stroke fill;letter-spacing:-.04em;white-space:nowrap;
+  text-shadow:0 0 14px #b84dff,0 0 34px #b84dff,0 0 60px #7a2bd6,6px 6px 0 #000;transform:rotate(-6deg) scale(3);opacity:0;
+  animation:slam .28s .45s cubic-bezier(.2,1.4,.5,1) forwards,tremble .07s .75s infinite alternate}
+@keyframes brush{to{clip-path:inset(0 0 0 0)}}
+@keyframes slam{to{opacity:1;transform:rotate(-6deg) scale(1)}}
+@keyframes tremble{from{translate:-1px 1px}to{translate:2px -1px}}
+/* 紫電の稲妻・零点・衝撃波（Canvas描画） */
+#beamCv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:13}
+</style>
+</head>
+<body>
+<canvas id="speed"></canvas>
+<canvas id="fx"></canvas>
+
+<!-- ナビゲーターの顔：紫衣の大魔導師・零（使い回し用テンプレート） -->
+<template id="faceTpl">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M24 90 Q18 24 50 18 Q82 24 76 90 Z" fill="#2a1440"/>
+    <path d="M4 104 Q50 66 96 104Z" fill="#5b2a9e" stroke="#000" stroke-width="3"/>
+    <path d="M20 104 Q30 86 50 84 Q70 86 80 104" fill="none" stroke="#ffd34d" stroke-width="2.5"/>
+    <path d="M30 88 L35 72 L50 82 L65 72 L70 88 Q50 80 30 88Z" fill="#4a1d96" stroke="#ffd34d" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="50" cy="90" r="4.5" fill="#d9a6ff" stroke="#ffd34d" stroke-width="2"/>
+    <ellipse cx="50" cy="55" rx="17.5" ry="20.5" fill="#f6dcc6" stroke="#000" stroke-width="3"/>
+    <path d="M31 54 Q31 28 50 26 Q71 28 70 52 Q63 38 54 43 Q48 33 41 44 Q36 40 31 54Z" fill="#2a1440" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M40 34 Q48 30 58 33" stroke="#9a6ad6" stroke-width="2" fill="none"/>
+    <path d="M36 50 L47 53 M53 53 L64 50" stroke="#000" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M37 58 Q42.5 54 48 58 Q42.5 60.5 37 58Z M52 58 Q57.5 54 63 58 Q57.5 60.5 52 58Z" fill="#fff" stroke="#000" stroke-width="1.6"/>
+    <circle cx="43" cy="57.6" r="2.3" fill="#b84dff"/><circle cx="57.5" cy="57.6" r="2.3" fill="#b84dff"/>
+    <circle cx="43" cy="57.6" r="1" fill="#000"/><circle cx="57.5" cy="57.6" r="1" fill="#000"/>
+    <path d="M50 60 L48.8 65 L51.5 65" stroke="#000" stroke-width="1.4" fill="none" stroke-linejoin="round"/>
+    <circle cx="32.5" cy="62" r="1.8" fill="#ffd34d"/>
+    <path class="mouth" d="M44 70 Q51 73 57 68" stroke="#000" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </svg>
+</template>
+
+<!-- 手前の主人公：大魔導師・零の後ろ姿（腕は肩の頂点から伸び、袖は重力で垂れる。輪郭光は --rim で変化） -->
+<template id="heroTpl">
+  <svg viewBox="0 0 200 220" aria-hidden="true">
+  <defs>
+    <linearGradient id="hRobe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a34c8"/><stop offset=".5" stop-color="#3c1784"/><stop offset="1" stop-color="#14062e"/></linearGradient>
+    <linearGradient id="hMantle" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d44de"/><stop offset="1" stop-color="#341272"/></linearGradient>
+    <linearGradient id="hSleeve" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#2a0e5c"/><stop offset=".6" stop-color="#5a28b0"/><stop offset="1" stop-color="#7a44d8"/></linearGradient>
+    <linearGradient id="hSleeveR" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#2a0e5c"/><stop offset=".6" stop-color="#5a28b0"/><stop offset="1" stop-color="#7a44d8"/></linearGradient>
+    <radialGradient id="hShade" cx=".5" cy=".1" r=".95"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".4" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".7"/></radialGradient>
+    <linearGradient id="hHair" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2258"/><stop offset=".6" stop-color="#1e1030"/><stop offset="1" stop-color="#0c0614"/></linearGradient>
+    <linearGradient id="hGold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a6418"/><stop offset=".5" stop-color="#ffe08a"/><stop offset="1" stop-color="#8a6418"/></linearGradient>
+    <radialGradient id="hSkin" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#f3d2ba"/><stop offset="1" stop-color="#a87a60"/></radialGradient>
+    <filter id="hBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.3"/></filter>
+    <filter id="hSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+
+  <!-- ===== 胴（ローブの背中）：腕を上げているので肩が少しせり上がる ===== -->
+  <path d="M58 116 Q50 160 24 224 L176 224 Q150 160 142 116 Q122 102 100 100 Q78 102 58 116Z" fill="url(#hRobe)"/>
+  <path d="M58 116 Q50 160 24 224 L176 224 Q150 160 142 116 Q122 102 100 100 Q78 102 58 116Z" fill="url(#hShade)"/>
+  <!-- 布の縦ひだ -->
+  <path d="M74 150 Q70 186 60 222 M126 150 Q130 186 140 222 M100 150 L100 222" stroke="#000" stroke-opacity=".35" stroke-width="2" fill="none"/>
+  <path d="M86 156 Q84 190 80 222 M114 156 Q116 190 120 222" stroke="#fff" stroke-opacity=".06" stroke-width="3" fill="none"/>
+  <!-- 裾の金刺繍 -->
+  <path d="M30 210 Q100 196 170 210" stroke="url(#hGold)" stroke-width="4" fill="none"/>
+  <path d="M33 202 Q100 188 167 202" stroke="url(#hGold)" stroke-width="1.2" fill="none" opacity=".8"/>
+  <!-- 背の紋章：重力零点（二つの円軌道と中心点） -->
+  <g transform="translate(100 186)" opacity=".9">
+    <ellipse rx="20" ry="7" fill="none" stroke="url(#hGold)" stroke-width="2" transform="rotate(-25)"/>
+    <ellipse rx="20" ry="7" fill="none" stroke="url(#hGold)" stroke-width="2" transform="rotate(25)"/>
+    <circle r="4" fill="#ffe08a"/>
+  </g>
+
+  <!-- ===== 両腕：前へ突き出す。後ろから見ると短く縮んで見え（短縮法）、手は頭の左右・肩より上に来る =====
+       袖の垂れた部分は体の向こう側なので肩掛けに隠れ、肩から手首までの袖だけが見える -->
+  <g id="armL">
+    <path d="M50 118 Q38 102 45 88 Q49 80 55 74 L71 79 Q76 92 72 108 Q66 116 60 120Z" fill="url(#hSleeve)"/>
+    <path d="M47 100 Q55 95 64 97 M46 110 Q56 106 68 108 M52 88 Q58 85 66 87" stroke="#000" stroke-opacity=".45" stroke-width="1.5" fill="none"/>
+    <path d="M50 94 Q48 86 54 80" stroke="#fff" stroke-opacity=".1" stroke-width="3" fill="none"/>
+    <ellipse cx="63" cy="76.5" rx="8.5" ry="3.6" transform="rotate(18 63 76.5)" fill="#12052a" stroke="url(#hGold)" stroke-width="1.8"/>
+    <path d="M50 118 Q38 102 45 88 Q49 80 55 74" style="stroke:var(--rim)" stroke-width="2.4" fill="none" filter="url(#hBlur)"/>
+    <!-- 手の甲側（掌は前＝敵の方へ向け、指を開く） -->
+    <path transform="translate(48 2)" d="M10 76 Q8 66 12 60 L13 50 Q15 48 16 50 L16 58 L18 46 Q20 44 21 46 L20 58 L23 49 Q25 47 26 49 L23 61 L27 56 Q29 55 29 57 L24 68 Q20 76 10 76Z"
+      fill="url(#hSkin)" stroke="#4a2a1a" stroke-opacity=".5" stroke-width=".8"/>
+    <path transform="translate(48 2)" d="M13 50 L13 60 M18 46 L17 60 M23 49 L21 61" style="stroke:var(--rim)" stroke-width=".9" fill="none" opacity=".8"/>
+  </g>
+  <!-- 右腕：左右反転 -->
+  <use href="#armL" transform="translate(200 0) scale(-1 1)"/>
+
+  <!-- ===== ケープ（肩掛け）：肩の付け根を覆い、腕がその下から出る ===== -->
+  <path d="M100 98 Q70 100 54 112 Q42 122 44 140 Q60 132 74 136 Q88 128 100 134 Q112 128 126 136 Q140 132 156 140 Q158 122 146 112 Q130 100 100 98Z" fill="url(#hMantle)"/>
+  <path d="M100 98 Q70 100 54 112 Q42 122 44 140 Q60 132 74 136 Q88 128 100 134 Q112 128 126 136 Q140 132 156 140 Q158 122 146 112 Q130 100 100 98Z" fill="url(#hShade)" opacity=".6"/>
+  <path d="M44 140 Q60 132 74 136 Q88 128 100 134 Q112 128 126 136 Q140 132 156 140" stroke="url(#hGold)" stroke-width="3" fill="none"/>
+  <path d="M56 136 Q50 160 52 176 M144 136 Q150 160 148 176" stroke="#000" stroke-opacity=".0" fill="none"/>
+  <!-- ケープ下の落ち影 -->
+  <path d="M48 142 Q100 132 152 142 L150 150 Q100 140 50 150Z" fill="#000" opacity=".35" filter="url(#hSoft)"/>
+  <path d="M100 98 Q70 100 54 112 Q42 122 44 140 M100 98 Q130 100 146 112 Q158 122 156 140" style="stroke:var(--rim)" stroke-width="2.2" fill="none" filter="url(#hBlur)" opacity=".9"/>
+
+  <!-- ===== 立て襟 ===== -->
+  <path d="M78 104 Q100 92 122 104 L119 88 Q100 80 81 88Z" fill="#2c0e60"/>
+  <path d="M81 88 Q100 80 119 88" stroke="url(#hGold)" stroke-width="2.4" fill="none"/>
+
+  <!-- ===== 長い髪：首の後ろで束ね、背中へ流れる ===== -->
+  <path d="M90 84 Q84 120 88 150 Q93 170 100 178 Q107 170 112 150 Q116 120 110 84Z" fill="url(#hHair)"/>
+  <path d="M96 96 Q94 130 98 168 M104 96 Q107 130 102 168" stroke="#9a7ad0" stroke-opacity=".3" stroke-width="1.4" fill="none"/>
+  <rect x="93" y="92" width="14" height="6" rx="2" fill="url(#hGold)"/>
+  <!-- 後頭部 -->
+  <path d="M78 72 Q76 46 100 40 Q124 46 122 72 Q118 88 100 90 Q82 88 78 72Z" fill="url(#hHair)"/>
+  <path d="M84 56 Q92 46 104 46 M82 68 Q86 58 94 54 M110 52 Q118 56 118 66 M100 48 Q98 64 100 84" stroke="#a88ad8" stroke-opacity=".3" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M78 72 Q76 46 100 40 Q124 46 122 72" style="stroke:var(--rim)" stroke-width="2" fill="none" filter="url(#hBlur)" opacity=".85"/>
+  <!-- 金の髪飾り -->
+  <path d="M84 50 Q100 42 116 50" stroke="url(#hGold)" stroke-width="2.2" fill="none"/>
+  <circle cx="100" cy="45" r="2.6" fill="#d9a6ff" stroke="#ffe08a" stroke-width="1"/>
+</svg>
+</template>
+
+<div id="app">
+  <header>
+    <div class="stage-badge pop" id="stageBadge">STAGE 1</div>
+    <div class="rules" id="rules"></div>
+    <button class="icon-btn home-btn" id="homeBtn">🏠HOME</button>
+    <button class="icon-btn" id="muteBtn" aria-label="サウンド切替">🔊</button>
+  </header>
+
+  <div class="navi" id="mainNavi">
+    <div class="avatar"><span class="manpu"></span><span class="navi-name">大魔導師・零</span></div>
+    <div class="bubble"><span class="say"></span></div>
+  </div>
+
+  <div id="arena">
+    <canvas id="bgCv"></canvas>
+    <canvas id="orbCv"></canvas>
+    <div id="groove"></div>
+    <div id="crater"></div>
+    <div id="enemy"><div class="e-inner" id="enemyArt"></div></div>
+    <div id="hero">
+      <div class="orb red" id="orbR"></div>
+      <div class="orb blue" id="orbB"></div>
+      <div id="fusion"></div>
+    </div>
+    <div class="plate" id="plateE">
+      <div class="nm" id="enemyName"></div>
+      <div class="hpw"><span>HP</span><div class="hp"><i id="hpBar"></i></div></div>
+    </div>
+    <div class="plate" id="plateH">
+      <div class="nm">大魔導師・零 <small>Lv.∞</small></div>
+      <div class="vals"><span class="vb">青 <b id="pvB">--</b></span>　<span class="vr">赤 <b id="pvR">--</b></span></div>
+    </div>
+    <div id="flash"></div>
+  </div>
+
+  <div id="meterWrap">
+    <div id="readout"><span class="who pop" id="who">引力・青</span><span class="num pop" id="num">0</span><span class="unit pop">%</span></div>
+    <div id="meter">
+      <div id="tolZone"></div>
+      <div id="meterFill"></div>
+      <div id="ghost"></div>
+      <div id="thr"></div>
+      <div id="thrLbl"></div>
+    </div>
+    <button class="big pop" id="chargeBtn">タメる</button>
+  </div>
+</div>
+
+<canvas id="beamCv"></canvas>
+<div id="cine">
+  <div id="cdark"></div>
+  <div id="kodou" class="pop">ドクン…！</div>
+  <div class="cband" id="cband">
+    <div class="lines"></div>
+    <div class="inner">
+      <div class="avatar"></div>
+      <div class="ctext"><span class="cname">紫衣の大魔導師 零（レイ）</span><div id="chantTxt"></div></div>
+    </div>
+  </div>
+  <div id="finisher"><div class="l1">重力零点――</div><div class="ruby">じゅうりょくれいてん</div><div class="l2">『紫電』！！</div></div>
+  <div id="cflash"></div>
+  <div class="skip">タップで早送り ▶▶</div>
+</div>
+<span aria-hidden="true" style="position:absolute;opacity:0;pointer-events:none;font-family:'Yuji Boku'">重力零点――『紫電』！！</span>
+<div id="popText"><div class="wrap"><div class="burst"></div><div class="burst inner"></div></div><div class="txt pop"></div><div class="sub"></div></div>
+
+<!-- タイトル -->
+<div class="overlay show" id="titleOv">
+  <div class="card">
+    <p style="margin:0;font-size:13px">一撃系バランス・クソゲー</p>
+    <h1 class="pop">目算で放て！<br>重力零点<br><span class="shi">「紫電」</span></h1>
+    <div class="yomi">じゅうりょくれいてん・しでん</div>
+    <div class="how">
+      ① ボタンを<b>長押し</b>すると玉が膨らんだり縮んだり。<b>大きいほど爆速！</b><br>
+      ② 離した瞬間のサイズで <span class="cB">引力（青）</span> が確定。<br>
+      ③ もう一度、<span class="cR">斥力（赤）</span> を同じサイズに！<br>
+      ④ 二つの力が釣り合えば <span class="cP">重力零点・紫電</span> 発動。平均サイズが基準以上なら撃破！<br>
+      ⑤ 全5ステージ、最後は<b>呪いの王</b>。
+    </div>
+    <div class="navi" id="titleNavi">
+      <div class="avatar"><span class="manpu"></span><span class="navi-name">大魔導師・零</span></div>
+      <div class="bubble"><span class="say">今日は私の腕を貸そう。目算は、君に任せる。</span></div>
+    </div>
+    <div class="btns">
+      <button class="big pop b-y" id="startBtn">修行開始</button>
+      <a class="big pop b-more" href="https://red-freegames.github.io/">🎮 他のゲームを見る</a>
+    </div>
+    <a class="fb-link" id="fbTitle" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a>
+    <footer class="site-foot">
+      <a class="coffee" href="https://buymeacoffee.com/red_freegames" target="_blank" rel="noopener">開発者にコーヒーを奢る☕</a>
+      <span>配信・動画利用大歓迎！商用利用OK</span>
+      <a class="pv" href="https://red-freegames.github.io/privacy.html" target="_blank" rel="noopener">プライバシー</a>
+    </footer>
+  </div>
+</div>
+
+<!-- HOME：プレイ中は確認してからタイトルへ -->
+<div class="overlay" id="homeOv">
+  <div class="card">
+    <h1 class="pop" style="font-size:24px">タイトルに戻りますか？</h1>
+    <p>進行状況はリセットされます</p>
+    <div class="btns">
+      <button class="big pop b-w" id="homeNo">続ける</button>
+      <button class="big pop b-p" id="homeYes">🏠 戻る</button>
+    </div>
+  </div>
+</div>
+
+<!-- ステージ紹介 -->
+<div class="overlay" id="introOv">
+  <div class="card">
+    <p class="pop" id="introStage" style="font-size:18px;margin:0"></p>
+    <h1 class="pop" id="introName" style="font-size:26px"></h1>
+    <div class="intro-art" id="introArt"></div>
+    <div class="how" id="introRules"></div>
+    <div class="btns"><button class="big pop b-p" id="goBtn">いざ！</button></div>
+  </div>
+</div>
+
+<!-- リザルト・カットイン -->
+<div class="overlay" id="cutin">
+  <div class="band" id="band"><div class="title pop" id="ciTitle"></div><div class="sub" id="ciSub"></div></div>
+  <div class="navi" id="ciNavi">
+    <div class="avatar"><span class="manpu"></span><span class="navi-name">大魔導師・零</span></div>
+    <div class="bubble"><span class="say"></span></div>
+  </div>
+  <div class="stats" id="ciStats"></div>
+  <div class="btns" id="ciBtns"></div>
+  <a class="fb-link" id="fbResult" target="_blank" rel="noopener">💬 要望・バグ報告はこちら</a>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+let fast = false;           // シネマ演出中にタップすると早送り
+const sleep = ms => new Promise(r => setTimeout(r, fast ? ms*0.25 : ms));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ===== 敵グラフィック（SVG） =====
+   粒子崩壊で画像化するため、色はすべて属性で直接指定する */
+const ENEMY_ART = {
+  // STAGE 1：うろつく低級の呪い（目玉だらけの粘体）
+  ghoul: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs><radialGradient id="e1b" cx=".45" cy=".35" r=".75"><stop offset="0" stop-color="#7d8f62"/><stop offset=".6" stop-color="#3a4a32"/><stop offset="1" stop-color="#161e12"/></radialGradient></defs>
+    <path d="M56 118 Q26 126 18 150 L12 160 L24 156 L22 168 L32 156" fill="none" stroke="#2a3624" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M146 118 Q176 126 184 152 L192 160 L180 158 L182 170 L172 158" fill="none" stroke="#2a3624" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M38 190 Q28 124 50 82 Q72 40 106 42 Q152 44 162 96 Q172 142 164 192 Q152 178 142 194 Q130 176 118 196 Q106 178 94 196 Q82 178 70 194 Q56 176 38 190Z" fill="url(#e1b)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M64 70 Q80 56 98 56" stroke="#9ab078" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+    <circle cx="86" cy="88" r="15" fill="#ffe14d" stroke="#000" stroke-width="3"/><circle cx="89" cy="90" r="6.5" fill="#000"/><circle cx="91" cy="87" r="2" fill="#fff"/>
+    <circle cx="124" cy="80" r="10" fill="#ffe14d" stroke="#000" stroke-width="3"/><circle cx="122" cy="82" r="4.5" fill="#000"/>
+    <circle cx="108" cy="58" r="5.5" fill="#ffe14d" stroke="#000" stroke-width="2.5"/><circle cx="108" cy="59" r="2.4" fill="#000"/>
+    <circle cx="144" cy="104" r="6.5" fill="#ffe14d" stroke="#000" stroke-width="2.5"/><circle cx="145" cy="105" r="3" fill="#000"/>
+    <circle cx="64" cy="114" r="5.5" fill="#ffe14d" stroke="#000" stroke-width="2.5"/><circle cx="63" cy="115" r="2.4" fill="#000"/>
+    <path d="M70 134 Q106 166 144 128 Q106 148 70 134Z" fill="#2a0008" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M76 137 L82 146 L88 140 L94 150 L100 142 L106 151 L112 142 L118 149 L124 139 L130 144 L136 134" fill="none" stroke="#f4f0d8" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M100 150 Q102 166 98 176" stroke="#9ab078" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`,
+  // STAGE 2：特級クラスの呪霊（胸に大口を持つ禍々しい巨体）
+  brute: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+      <radialGradient id="e2a" cx=".5" cy=".55" r=".5"><stop offset="0" stop-color="#ff1a3a" stop-opacity=".55"/><stop offset="1" stop-color="#ff1a3a" stop-opacity="0"/></radialGradient>
+      <linearGradient id="e2b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a1c30"/><stop offset="1" stop-color="#1a0610"/></linearGradient>
+    </defs>
+    <ellipse cx="100" cy="112" rx="98" ry="88" fill="url(#e2a)"/>
+    <path d="M36 108 Q8 150 20 194" stroke="#000" stroke-width="24" stroke-linecap="round" fill="none"/>
+    <path d="M36 108 Q8 150 20 194" stroke="#4a1424" stroke-width="17" stroke-linecap="round" fill="none"/>
+    <path d="M164 108 Q192 150 180 194" stroke="#000" stroke-width="24" stroke-linecap="round" fill="none"/>
+    <path d="M164 108 Q192 150 180 194" stroke="#4a1424" stroke-width="17" stroke-linecap="round" fill="none"/>
+    <path d="M12 192 L18 182 M22 196 L26 184 M178 196 L174 184 M188 192 L182 182" stroke="#f4f0d8" stroke-width="3" stroke-linecap="round"/>
+    <path d="M32 198 Q22 124 52 92 Q74 72 100 74 Q126 72 148 92 Q178 124 168 198Z" fill="url(#e2b)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="50" cy="102" r="26" fill="#5a1828" stroke="#000" stroke-width="4"/>
+    <circle cx="150" cy="102" r="26" fill="#5a1828" stroke="#000" stroke-width="4"/>
+    <path d="M82 52 Q64 30 70 10 Q82 32 94 44Z M118 52 Q136 30 130 10 Q118 32 106 44Z" fill="#d8d0b8" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M78 82 Q74 46 100 42 Q126 46 122 82 Q100 94 78 82Z" fill="#3a0f1a" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="89" cy="62" rx="9" ry="6" fill="#ff2a2a" opacity=".35"/><ellipse cx="111" cy="62" rx="9" ry="6" fill="#ff2a2a" opacity=".35"/>
+    <path d="M83 62 L95 64 L84 66Z M117 62 L105 64 L116 66Z" fill="#ff4a4a"/>
+    <path d="M90 76 L110 76" stroke="#000" stroke-width="2"/>
+    <path d="M56 128 Q100 182 144 128 Q100 152 56 128Z" fill="#0a0004" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M62 131 L68 144 L74 136 L80 151 L86 140 L92 155 L100 142 L108 155 L114 140 L120 151 L126 136 L132 144 L138 131" fill="none" stroke="#f4f0d8" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M118 98 L148 158" stroke="#d8a0b0" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <path d="M124 104 L132 100 M130 116 L138 112 M136 128 L144 124 M142 140 L150 136" stroke="#d8a0b0" stroke-width="2"/>
+  </svg>`,
+  // STAGE 3：森の特級呪霊（樹木と花を纏う頑丈な巨人）
+  forest: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs><linearGradient id="e3w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a7a52"/><stop offset="1" stop-color="#3e2a1a"/></linearGradient></defs>
+    <path d="M90 72 Q74 50 66 20 M78 46 Q66 40 56 44 M70 30 Q60 22 58 12" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M90 72 Q74 50 66 20 M78 46 Q66 40 56 44 M70 30 Q60 22 58 12" stroke="#6a4a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M110 72 Q126 50 134 20 M122 46 Q134 40 144 44 M130 30 Q140 22 142 12" stroke="#000" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M110 72 Q126 50 134 20 M122 46 Q134 40 144 44 M130 30 Q140 22 142 12" stroke="#6a4a2a" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g fill="#4caf50" stroke="#000" stroke-width="2">
+      <ellipse cx="62" cy="16" rx="8" ry="4.5" transform="rotate(-30 62 16)"/><ellipse cx="54" cy="42" rx="8" ry="4.5" transform="rotate(20 54 42)"/>
+      <ellipse cx="138" cy="16" rx="8" ry="4.5" transform="rotate(30 138 16)"/><ellipse cx="146" cy="42" rx="8" ry="4.5" transform="rotate(-20 146 42)"/>
+      <ellipse cx="68" cy="22" rx="6" ry="3.5" fill="#7ad36a" transform="rotate(40 68 22)"/><ellipse cx="132" cy="22" rx="6" ry="3.5" fill="#7ad36a" transform="rotate(-40 132 22)"/>
+    </g>
+    <path d="M62 118 Q36 150 42 194" stroke="#000" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M62 118 Q36 150 42 194" stroke="#5a3e26" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M138 118 Q164 150 158 194" stroke="#000" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M138 118 Q164 150 158 194" stroke="#5a3e26" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M66 198 L74 112 Q100 98 126 112 L134 198Z" fill="url(#e3w)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M84 124 Q90 150 82 176 M116 124 Q110 150 118 176 M100 120 L100 190" stroke="#2a1a0e" stroke-width="2.5" fill="none"/>
+    <path d="M50 116 Q100 86 150 116 L144 132 Q100 108 56 132Z" fill="#5a3e26" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M72 134 Q90 160 74 186 Q96 172 90 150" stroke="#2e8a3e" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <g stroke="#000" stroke-width="2"><circle cx="58" cy="112" r="7" fill="#ff8ad8"/><circle cx="66" cy="104" r="7" fill="#ff8ad8"/><circle cx="50" cy="104" r="7" fill="#ff8ad8"/><circle cx="58" cy="106" r="5" fill="#ffe14d"/></g>
+    <ellipse cx="100" cy="80" rx="20" ry="25" fill="#ece2c8" stroke="#000" stroke-width="4"/>
+    <ellipse cx="91" cy="76" rx="5" ry="6" fill="#1a0e06"/><ellipse cx="109" cy="76" rx="5" ry="6" fill="#1a0e06"/>
+    <path d="M86 94 Q100 100 114 94 M92 94 L92 101 M100 96 L100 103 M108 94 L108 101" stroke="#3a2a1a" stroke-width="2.2" fill="none"/>
+    <path d="M86 62 Q100 56 114 62" stroke="#3a2a1a" stroke-width="2" fill="none"/>
+  </svg>`,
+  // STAGE 4：火山頭の特級呪霊（沸騰・発光する頭部の一つ目）
+  volcano: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+      <linearGradient id="e4h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a5a4e"/><stop offset="1" stop-color="#3a2e26"/></linearGradient>
+      <radialGradient id="e4l" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#fff6a0"/><stop offset=".5" stop-color="#ff8a00"/><stop offset="1" stop-color="#c41a00"/></radialGradient>
+      <radialGradient id="e4g" cx=".5" cy=".3" r=".6"><stop offset="0" stop-color="#ff6a00" stop-opacity=".6"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></radialGradient>
+    </defs>
+    <ellipse cx="100" cy="60" rx="80" ry="60" fill="url(#e4g)"/>
+    <circle cx="70" cy="22" r="10" fill="#555" opacity=".5"/><circle cx="132" cy="14" r="13" fill="#555" opacity=".45"/><circle cx="104" cy="6" r="8" fill="#666" opacity=".4"/>
+    <path d="M84 60 Q76 30 90 18 Q94 36 100 6 Q108 32 114 16 Q126 34 116 60Z" fill="#ff7a00" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M92 60 Q90 40 98 30 Q102 44 108 34 Q112 48 108 60Z" fill="#ffe14d"/>
+    <path d="M60 140 Q46 160 50 186 M140 140 Q154 160 150 186" stroke="#000" stroke-width="16" stroke-linecap="round" fill="none"/>
+    <path d="M60 140 Q46 160 50 186 M140 140 Q154 160 150 186" stroke="#b8a89a" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <path d="M56 198 Q48 156 72 134 Q100 124 128 134 Q152 156 144 198Z" fill="#e8e0d4" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M100 132 L100 198 M76 150 Q100 162 124 150" stroke="#6a5a4e" stroke-width="3" fill="none"/>
+    <path d="M52 128 Q58 94 76 60 L124 60 Q142 94 148 128 Q100 142 52 128Z" fill="url(#e4h)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <ellipse cx="100" cy="60" rx="25" ry="7.5" fill="url(#e4l)" stroke="#000" stroke-width="3"/>
+    <path d="M84 64 L79 80 L86 92 L80 104 M116 64 L122 84 L115 96 M100 67 L102 78" stroke="#ff9a2a" stroke-width="3.5" fill="none" stroke-linejoin="round"/>
+    <path d="M84 64 L79 80 L86 92 L80 104 M116 64 L122 84 L115 96" stroke="#ffe14d" stroke-width="1.2" fill="none"/>
+    <ellipse cx="100" cy="96" rx="15" ry="11" fill="#fff" stroke="#000" stroke-width="3"/>
+    <circle cx="100" cy="96" r="6" fill="#c41a00"/><circle cx="100" cy="96" r="2.5" fill="#000"/><circle cx="102" cy="93" r="1.5" fill="#fff"/>
+    <path d="M86 84 L114 88" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M78 114 L122 114 L118 126 L82 126Z" fill="#2a0004" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M82 114 L86 121 L90 114 L94 121 L98 114 L102 121 L106 114 L110 121 L114 114 L118 121" fill="none" stroke="#f4f0d8" stroke-width="2.5" stroke-linejoin="round"/>
+  </svg>`,
+  // STAGE 5：呪いの王（四本腕・四つ目・全身の紋様）
+  king: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+      <radialGradient id="e5a" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#b0002a" stop-opacity=".7"/><stop offset=".7" stop-color="#3a0010" stop-opacity=".45"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    </defs>
+    <ellipse cx="100" cy="104" rx="100" ry="98" fill="url(#e5a)"/>
+    <path d="M40 150 Q30 110 46 70 Q50 100 60 80 Q62 110 74 96 M160 150 Q170 110 154 70 Q150 100 140 80 Q138 110 126 96" stroke="#ff2a4a" stroke-width="3" fill="none" opacity=".6"/>
+    <g stroke-linecap="round" fill="none">
+      <path d="M72 106 Q42 86 36 50" stroke="#000" stroke-width="18"/><path d="M72 106 Q42 86 36 50" stroke="#e8b8a0" stroke-width="12"/>
+      <path d="M128 106 Q158 86 164 50" stroke="#000" stroke-width="18"/><path d="M128 106 Q158 86 164 50" stroke="#e8b8a0" stroke-width="12"/>
+      <path d="M72 122 Q42 140 36 172" stroke="#000" stroke-width="18"/><path d="M72 122 Q42 140 36 172" stroke="#e8b8a0" stroke-width="12"/>
+      <path d="M128 122 Q158 140 164 172" stroke="#000" stroke-width="18"/><path d="M128 122 Q158 140 164 172" stroke="#e8b8a0" stroke-width="12"/>
+      <path d="M46 80 L52 72 M40 60 L46 56 M154 80 L148 72 M160 60 L154 56 M46 146 L52 152 M154 146 L148 152" stroke="#111" stroke-width="3"/>
+    </g>
+    <g fill="#e8b8a0" stroke="#000" stroke-width="3"><circle cx="36" cy="46" r="8"/><circle cx="164" cy="46" r="8"/><circle cx="36" cy="176" r="8"/><circle cx="164" cy="176" r="8"/></g>
+    <path d="M66 198 L70 110 Q100 96 130 110 L134 198Z" fill="#e8b8a0" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M82 120 Q100 132 118 120 M86 138 L92 152 M114 138 L108 152 M78 126 L84 140 M122 126 L116 140" stroke="#111" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M60 162 L140 162 L148 200 L52 200Z" fill="#f2efe8" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+    <rect x="62" y="158" width="76" height="12" fill="#1a1a1a" stroke="#000" stroke-width="3"/>
+    <path d="M100 162 L92 200 M100 162 L110 200" stroke="#b8b0a0" stroke-width="2"/>
+    <ellipse cx="100" cy="80" rx="19" ry="22" fill="#e8b8a0" stroke="#000" stroke-width="4"/>
+    <path d="M80 72 L76 50 L86 60 L88 40 L96 56 L102 34 L108 56 L116 40 L116 60 L126 50 L120 72 Q100 60 80 72Z" fill="#c8325a" stroke="#000" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M86 74 L96 76 M104 76 L114 74" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="91" cy="79" rx="4" ry="2.4" fill="#ff1a3a"/><ellipse cx="109" cy="79" rx="4" ry="2.4" fill="#ff1a3a"/>
+    <ellipse cx="92" cy="86" rx="3" ry="1.8" fill="#ff1a3a"/><ellipse cx="108" cy="86" rx="3" ry="1.8" fill="#ff1a3a"/>
+    <path d="M84 84 L88 92 M116 84 L112 92 M98 64 L100 70 L102 64" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M89 94 Q100 102 111 94 Q100 97 89 94Z" fill="#300" stroke="#000" stroke-width="2"/>
+    <path d="M92 95 L94 98 L96 96 L98 99 L100 96 L102 99 L104 96 L106 98 L108 95" stroke="#fff" stroke-width="1.5" fill="none"/>
+  </svg>`,
+};
+
+/* ===== 敵の陰影・輪郭光・発光部位 =====
+   glow：ぼかして重ねる発光部位（眼・紋様・マグマ）、top：発光の上に描く瞳など */
+const ENEMY_FX = {
+  ghoul: { rim:'#9dff6a', rgb:[140,255,100],
+    glow:`<circle cx="86" cy="88" r="12" fill="#ffe14d"/><circle cx="124" cy="80" r="8" fill="#ffe14d"/><circle cx="108" cy="58" r="4.5" fill="#ffe14d"/><circle cx="144" cy="104" r="5.5" fill="#ffe14d"/><circle cx="64" cy="114" r="4.5" fill="#ffe14d"/>`,
+    top:`<circle cx="89" cy="90" r="6" fill="#000"/><circle cx="91" cy="87" r="2" fill="#fff"/><circle cx="122" cy="82" r="4" fill="#000"/><circle cx="108" cy="59" r="2.2" fill="#000"/><circle cx="145" cy="105" r="2.8" fill="#000"/><circle cx="63" cy="115" r="2.2" fill="#000"/>` },
+  brute: { rim:'#ff3355', rgb:[255,50,80],
+    glow:`<path d="M83 62 L95 64 L84 66Z M117 62 L105 64 L116 66Z" fill="#ff3030"/><path d="M62 132 Q100 172 138 132" stroke="#ff2244" stroke-width="3" fill="none" opacity=".8"/>`, top:'' },
+  forest: { rim:'#7dff9a', rgb:[110,255,140],
+    glow:`<ellipse cx="91" cy="77" rx="2.6" ry="3.2" fill="#b4ff6a"/><ellipse cx="109" cy="77" rx="2.6" ry="3.2" fill="#b4ff6a"/><path d="M72 134 Q90 160 74 186" stroke="#6aff8a" stroke-width="2" fill="none" opacity=".7"/>`, top:'' },
+  volcano: { rim:'#ffa040', rgb:[255,150,60],
+    glow:`<path d="M84 60 Q76 30 90 18 Q94 36 100 6 Q108 32 114 16 Q126 34 116 60Z" fill="#ff7a00" opacity=".9"/><path d="M92 60 Q90 40 98 30 Q102 44 108 34 Q112 48 108 60Z" fill="#ffe14d"/><ellipse cx="100" cy="60" rx="24" ry="7" fill="url(#e4l)"/><path d="M84 64 L79 80 L86 92 L80 104 M116 64 L122 84 L115 96 M100 67 L102 78" stroke="#ffb040" stroke-width="3" fill="none"/><circle cx="100" cy="96" r="6" fill="#ff3a00"/>`,
+    top:`<circle cx="100" cy="96" r="2.5" fill="#000"/>` },
+  king: { rim:'#ff2a4a', rgb:[255,40,70],
+    glow:`<ellipse cx="91" cy="79" rx="4" ry="2.4" fill="#ff1a3a"/><ellipse cx="109" cy="79" rx="4" ry="2.4" fill="#ff1a3a"/><ellipse cx="92" cy="86" rx="3" ry="1.8" fill="#ff1a3a"/><ellipse cx="108" cy="86" rx="3" ry="1.8" fill="#ff1a3a"/><path d="M82 120 Q100 132 118 120 M86 138 L92 152 M114 138 L108 152 M84 84 L88 92 M116 84 L112 92" stroke="#ff2a4a" stroke-width="1.6" fill="none" opacity=".75"/>`, top:'' },
+};
+// 漫画的な太い主線を細く沈め、シルエット内だけに深い影と輪郭光を重ね、発光部位をぼかして光らせる。
+// 同じ敵をページ内に複数置けるよう、ID は pfx で付け替える
+function buildEnemy(key, pfx){
+  const fx = ENEMY_FX[key];
+  let inner = ENEMY_ART[key].trim().replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '')
+    .replace(/stroke="#000" stroke-width="([\d.]+)"/g, (m, w) => `stroke="#0a0008" stroke-opacity=".7" stroke-width="${Math.max(1.2, w*0.45)}"`);
+  const defs = (inner.match(/<defs>([\s\S]*?)<\/defs>/) || ['', ''])[1];
+  inner = inner.replace(/<defs>[\s\S]*?<\/defs>/, '');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs>${defs}
+    <filter id="wh"><feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0"/></filter>
+    <mask id="ms" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200"><g filter="url(#wh)">${inner}</g></mask>
+    <radialGradient id="sh" cx=".4" cy=".28" r=".85"><stop offset="0" stop-color="#fff" stop-opacity=".16"/><stop offset=".42" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".82"/></radialGradient>
+    <linearGradient id="rm" x1="1" y1="0" x2=".2" y2=".7"><stop offset="0" stop-color="${fx.rim}" stop-opacity=".6"/><stop offset=".4" stop-color="${fx.rim}" stop-opacity="0"/></linearGradient>
+    <filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>${inner}<rect width="200" height="200" fill="url(#sh)" mask="url(#ms)"/><rect width="200" height="200" fill="url(#rm)" mask="url(#ms)"/><g filter="url(#gl)">${fx.glow}</g>${fx.top}</svg>`;
+  return svg.replace(/id="([^"]+)"/g, `id="${pfx}$1"`).replace(/url\(#([^)]+)\)/g, `url(#${pfx}$1)`);
+}
+
+/* ===== ステージ定義 ===== */
+const STAGES = [
+  { name:'うろつく低級の呪い', diff:'易', tol:12, power:50, speed:0.85, art:'ghoul', enemyName:'低級呪霊・ウロツキ',
+    taunt:'ウ゛ゥ……ア゛ァ……', hint:'まずは肩慣らし。高出力ほどゲージが爆速になるぞ！',
+    intro:'まずは肩慣らし。青と赤、同じだけ注げばいい。簡単だろう？' },
+  { name:'特級クラスの呪霊', diff:'中', tol:9,  power:65, speed:0.95, art:'brute', enemyName:'特級呪霊・ツギハギ巨鬼',
+    taunt:'グハハ……魔導師ごときが？', hint:'胸の大口に注意。ゲージが少し速くなる！',
+    intro:'特級か。ゲージ、少し速くしておいた。退屈しないようにね。' },
+  { name:'森の特級呪霊', diff:'高', tol:7,  power:75, speed:1.0,  art:'forest', enemyName:'森の特級呪霊・ハッパノヌシ',
+    taunt:'（脳内に直接響く、意味は分かるけど聞き取れない言語）', hint:'植物系の頑丈ボディ。75%以上で貫け。',
+    intro:'森のヌシか。頑丈さが自慢らしい。……関係ないけどね。' },
+  { name:'火山頭の特級呪霊', diff:'鬼', tol:4,  power:85, speed:1.05, art:'volcano', enemyName:'火山頭の特級呪霊・フンカ親分',
+    taunt:'貴様ら魔導師は皆、炭にしてくれるわ！！', hint:'炎系。頭が噴火する前に決めろ！',
+    intro:'沸点の低い相手だ。こっちは冷静に、85%の爆速ゾーンを射抜け。' },
+  { name:'呪いの王', diff:'最難関', tol:3,  power:90, speed:1.1,  art:'king', enemyName:'呪いの王・マガツオウ',
+    taunt:'退屈させるなよ、魔導師。', hint:'誤差3%・出力90%。爆速ゾーンでの一瞬の職人芸。',
+    intro:'呪いの王か。90%の世界は一瞬だ。……まあ、私には止まって見えるけどね。' },
+];
+
+/* ===== セリフ ===== */
+const LINES = {
+  perfect: '釣り合いは完璧。いい出力をしている。',
+  weak:    '……あれ？ 出力、足りなくない？',
+  miss:    '目算が甘いねぇ。これじゃ逆効果だよ。',
+  final:   '心配はいらないよ。だって私、最強の魔導師だからね。',
+  chargeB: ['いい魔力だ。そのまま膨らませて。','膨らませすぎも萎ませすぎもダメ。','焦らない焦らない。'],
+  chargeR: ['さっきの青、覚えてる？','ほら、釣り合わせて。','ズレたら逆効果だよ。'],
+  judge:   ['さぁ——','見せてごらん。','ゼロへ——。'],
+  // 零本人が紫電を放つ瞬間のキザなセリフ
+  fire:    ['引き寄せる青、押し出す赤。釣り合った一点に、君の居場所はない。',
+            '悪いね。手加減は、とうの昔に忘れてしまった。',
+            '重さも、痛みも、ゼロにしてあげよう。',
+            '瞬きは禁止だよ。見逃したら勿体ない。',
+            '私の目算に狂いはない。……今日は君の目算だけどね。'],
+  done:    '……はい、お掃除完了。',
+};
+
+/* ===== 状態 ===== */
+let stageIdx = 0, phase = 'idle', holding = false;
+let value = 1, lastTs = 0;
+let blueVal = null, redVal = null, muted = false, frozen = false;
+
+/* ===== DOM ===== */
+const app=$('app'), orbB=$('orbB'), orbR=$('orbR'), fusion=$('fusion'), hero=$('hero');
+const enemy=$('enemy'), enemyArt=$('enemyArt'), arena=$('arena'), btn=$('chargeBtn'), num=$('num'), who=$('who');
+const meterFill=$('meterFill'), ghost=$('ghost'), tolZone=$('tolZone'), thr=$('thr'), thrLbl=$('thrLbl');
+
+/* ===== ナビゲーター ===== */
+const MOUTH = { smirk:'M44 70 Q51 73 57 68', grin:'M43 68 Q50 77 58 68 Z', flat:'M45 71 L56 71', oops:'M46 72 Q51 68 56 72' };
+document.querySelectorAll('.avatar').forEach(a => a.prepend($('faceTpl').content.cloneNode(true)));
+hero.prepend($('heroTpl').content.cloneNode(true));
+const typers = new WeakMap();
+function setMood(root, mood='smirk', manpu=''){
+  const mouth = root.querySelector('.mouth');
+  mouth.setAttribute('d', MOUTH[mood] || MOUTH.smirk);
+  mouth.setAttribute('fill', mood==='grin' ? '#fff' : 'none');
+  const mp = root.querySelector('.manpu');
+  if(mp){ mp.textContent = manpu; mp.classList.toggle('on', !!manpu); }
+}
+function typeInto(el, text, ms){
+  return new Promise(res => {
+    let i = 0; el.textContent = '';
+    const tick = () => {
+      if(fast){ el.textContent = text; return res(); }
+      el.textContent = text.slice(0, ++i);
+      if(i % 2 === 0) beep(1300 + Math.random()*300, 0.02, 'square', 0.03);
+      if(i >= text.length) return res();
+      setTimeout(tick, ms);
+    };
+    tick();
+  });
+}
+function say(naviId, text, mood='smirk', manpu=''){
+  const nv = $(naviId), el = nv.querySelector('.say'), av = nv.querySelector('.avatar');
+  setMood(nv, mood, manpu);
+  av.classList.remove('bounce'); void av.offsetWidth; av.classList.add('bounce');
+  clearInterval(typers.get(el));
+  let i = 0; el.textContent = '';
+  const id = setInterval(() => {
+    el.textContent = text.slice(0, ++i);
+    if(i % 2 === 0) beep(1400 + Math.random()*300, 0.02, 'square', 0.025);
+    if(i >= text.length) clearInterval(id);
+  }, 32);
+  typers.set(el, id);
+}
+
+/* ===== サウンド (Web Audio) ===== */
+let ac = null, hum = null;
+function audio(){
+  if(!ac){ try{ ac = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(ac.state==='suspended') ac.resume();
+  return ac;
+}
+function startHum(){
+  const c = audio(); if(!c || muted) return;
+  const g = c.createGain(); g.gain.value = 0; g.connect(c.destination);
+  const lp = c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900; lp.connect(g);
+  const o1 = c.createOscillator(); o1.type='sawtooth';
+  const o2 = c.createOscillator(); o2.type='square'; o2.detune.value = 18;
+  const trem = c.createGain(); trem.gain.value = 0.5; trem.connect(lp);
+  o1.connect(trem); o2.connect(trem);
+  const lfo = c.createOscillator(); lfo.frequency.value = 9;
+  const lfoG = c.createGain(); lfoG.gain.value = 0.35; lfo.connect(lfoG); lfoG.connect(trem.gain);
+  [o1,o2,lfo].forEach(o=>o.start());
+  g.gain.linearRampToValueAtTime(0.12, c.currentTime+0.08);
+  hum = {g,o1,o2,lfo,lp};
+}
+function updateHum(v){
+  if(!hum) return;
+  const f = 55 + v*3.2, now = ac.currentTime;
+  hum.o1.frequency.setTargetAtTime(f, now, 0.02);
+  hum.o2.frequency.setTargetAtTime(f*1.5, now, 0.02);
+  hum.lp.frequency.setTargetAtTime(400 + v*18, now, 0.03);
+  hum.lfo.frequency.setTargetAtTime(6 + v*0.12, now, 0.05);
+}
+function stopHum(){
+  if(!hum) return;
+  const h = hum, now = ac.currentTime; hum = null;
+  h.g.gain.cancelScheduledValues(now); h.g.gain.setValueAtTime(h.g.gain.value, now);
+  h.g.gain.linearRampToValueAtTime(0, now+0.08);
+  [h.o1,h.o2,h.lfo].forEach(o=>o.stop(now+0.1));
+}
+function beep(freq=880, dur=0.08, type='square', vol=0.12, slide=0){
+  const c = ac; if(!c || muted || c.state!=='running') return;
+  const o = c.createOscillator(), g = c.createGain(), now = c.currentTime;
+  o.type = type; o.frequency.setValueAtTime(freq, now);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,freq+slide), now+dur);
+  g.gain.setValueAtTime(vol, now); g.gain.exponentialRampToValueAtTime(0.001, now+dur);
+  o.connect(g); g.connect(c.destination); o.start(now); o.stop(now+dur+0.02);
+}
+function noise(dur=0.6, vol=0.3, cutoff=1200){
+  const c = ac; if(!c || muted || c.state!=='running') return;
+  const len = Math.floor(c.sampleRate*dur), buf = c.createBuffer(1,len,c.sampleRate), d = buf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 2);
+  const s = c.createBufferSource(); s.buffer = buf;
+  const f = c.createBiquadFilter(); f.type='lowpass'; f.frequency.value = cutoff;
+  const g = c.createGain(); g.gain.value = vol;
+  s.connect(f); f.connect(g); g.connect(c.destination); s.start();
+}
+const jingle = (notes, step=0.11, type='square') => notes.forEach((n,i)=>setTimeout(()=>beep(n, step*1.4, type, 0.1), i*step*1000));
+const impact = () => { noise(0.35, 0.4, 2200); beep(140, 0.3, 'sawtooth', 0.18, -90); };
+// 「ドクン…！」心音（2連の重低音）
+function heartbeat(){
+  const c = ac; if(!c || muted || c.state!=='running') return;
+  [0, 0.2].forEach((t0, i) => {
+    const o = c.createOscillator(), g = c.createGain(), now = c.currentTime + t0;
+    o.type = 'sine'; o.frequency.setValueAtTime(i ? 62 : 78, now); o.frequency.exponentialRampToValueAtTime(32, now+0.3);
+    g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(i ? 0.5 : 0.75, now+0.02); g.gain.exponentialRampToValueAtTime(0.001, now+0.42);
+    o.connect(g); g.connect(c.destination); o.start(now); o.stop(now+0.45);
+  });
+}
+const finisherSound = () => { noise(1.2, 0.5, 4000); [220,277,330,440].forEach(f => beep(f, 1.2, 'sawtooth', 0.06)); beep(80, 1, 'square', 0.15, -40); };
+const beamSound = () => { noise(2.0, 0.55, 2500); beep(1600, 1.4, 'sawtooth', 0.1, -1450); beep(55, 1.6, 'square', 0.18); };
+
+/* ===== 画面シェイク・フラッシュ ===== */
+function shake(level=2){
+  app.classList.remove('shake1','shake2'); void app.offsetWidth;
+  app.classList.add(level===1 ? 'shake1' : 'shake2');
+}
+function flash(color='#fff', op=.9){
+  const f=$('flash'); f.style.background = color; f.style.transition='none'; f.style.opacity=op;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ f.style.transition='opacity .45s'; f.style.opacity=0; }));
+}
+function cflash(op=1){
+  const f=$('cflash'); f.style.transition='none'; f.style.opacity=op;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ f.style.transition='opacity .6s'; f.style.opacity=0; }));
+}
+
+/* ===== コミック風ポップアップ文字 ===== */
+function starburst(spikes=18, jitter=.12){
+  const pts = [];
+  for(let i=0;i<spikes*2;i++){
+    const a = i/(spikes*2) * Math.PI*2;
+    const r = (i%2 ? 0.36 : 0.5) * (1 - Math.random()*jitter);
+    pts.push(`${(50+Math.cos(a)*r*100).toFixed(1)}% ${(50+Math.sin(a)*r*100).toFixed(1)}%`);
+  }
+  return `polygon(${pts.join(',')})`;
+}
+function popText(text, color='#ffe14d', sub='', size=66){
+  const p = $('popText');
+  p.querySelectorAll('.burst').forEach(b => b.style.clipPath = b.style.webkitClipPath = starburst());
+  p.querySelector('.burst').style.background = color;
+  const t = p.querySelector('.txt'); t.textContent = text; t.style.fontSize = size + 'px';
+  p.querySelector('.sub').textContent = sub;
+  p.classList.remove('show'); void p.offsetWidth; p.classList.add('show');
+}
+
+/* ===== 粒子（魔力エフェクト） ===== */
+const cv = $('fx'), cx = cv.getContext('2d');
+const sv = $('speed'), sx = sv.getContext('2d');
+let parts = [];
+function resize(){ [cv,sv].forEach(c => { c.width = innerWidth*devicePixelRatio; c.height = innerHeight*devicePixelRatio; }); }
+addEventListener('resize', resize); resize();
+const centerOf = el => { const r = el.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2]; };
+function emit(el, color, n=3){
+  const r = el.getBoundingClientRect(); if(!r.width) return;
+  const [x0, y0] = centerOf(el), rad = r.width/2;
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, d = rad + 30 + Math.random()*50;
+    parts.push({ x:x0+Math.cos(a)*d, y:y0+Math.sin(a)*d, tx:x0, ty:y0, life:1, color, s:2+Math.random()*3, inward:true });
+  }
+}
+function burst(x0, y0, color, n=40, pow=8){
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, v = Math.random()*pow;
+    parts.push({ x:x0, y:y0, vx:Math.cos(a)*v, vy:Math.sin(a)*v, life:1, color, s:2+Math.random()*4 });
+  }
+}
+function drawParts(dt){
+  const k = devicePixelRatio;
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts = parts.filter(p => p.life > 0);
+  for(const p of parts){
+    if(p.suck){
+      if(p.delay > 0) p.delay -= dt;
+      else {
+        p.ang += 0.12 + 6/(p.rad + 8); p.rad *= 0.955; p.life -= dt*0.15;
+        p.x = p.cx + Math.cos(p.ang)*p.rad; p.y = p.cy + Math.sin(p.ang)*p.rad*0.7;
+        if(p.rad < 2) p.life = 0;
+      }
+    }
+    else if(p.dust){
+      if(p.delay > 0) p.delay -= dt;
+      else { p.vx += (Math.random()-.35)*0.35; p.vy -= 0.06; p.x += p.vx; p.y += p.vy; p.life -= dt*0.55; }
+    }
+    else if(p.inward){ p.x += (p.tx-p.x)*0.12; p.y += (p.ty-p.y)*0.12; p.life -= dt*2.2; }
+    else { p.x += p.vx; p.y += p.vy; p.vx *= 0.95; p.vy *= 0.95; p.life -= dt*1.3; }
+    cx.globalAlpha = Math.max(0,p.life);
+    cx.fillStyle = p.color;
+    cx.fillRect(p.x*k, p.y*k, p.s*k, p.s*k);
+  }
+  cx.globalAlpha = 1;
+}
+
+/* ===== 集中線＆稲妻（呪力スパーク） ===== */
+let speedFrame = 0, speedFade = 0, speedColor = '#2fa8ff', speedCenter = [0,0];
+function bolt(x, y, tx, ty, color, segs=9, jit=26){
+  const k = devicePixelRatio, pts = [[x,y]];
+  for(let i=1;i<=segs;i++){
+    const f = i/segs, j = (1-f) * jit;
+    pts.push([x+(tx-x)*f + (Math.random()-.5)*j*2, y+(ty-y)*f + (Math.random()-.5)*j*2]);
+  }
+  sx.lineJoin = 'round';
+  [[color, 7, 18], ['#fff', 2.2, 0]].forEach(([c, w, blur]) => {
+    sx.strokeStyle = c; sx.lineWidth = w*k; sx.shadowColor = color; sx.shadowBlur = blur*k;
+    sx.beginPath(); pts.forEach(([px,py],i) => i ? sx.lineTo(px*k,py*k) : sx.moveTo(px*k,py*k)); sx.stroke();
+  });
+  sx.shadowBlur = 0;
+}
+function drawSpeed(intensity){
+  const k = devicePixelRatio, W = sv.width, H = sv.height;
+  if(++speedFrame % 2) return;               // 2フレームに1回描き直してチラつかせる
+  sx.clearRect(0,0,W,H);
+  if(intensity <= 0.01) return;
+  const [ox, oy] = speedCenter, maxR = Math.hypot(innerWidth, innerHeight);
+  const n = Math.floor(50 + intensity*70);
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, w = 0.004 + Math.random()*0.014;
+    const r0 = maxR * (0.42 - intensity*0.16 + Math.random()*0.22);
+    sx.fillStyle = Math.random() < .55 ? `rgba(255,255,255,${.35+intensity*.45})` : speedColor;
+    sx.globalAlpha = Math.min(1, intensity*1.3);
+    sx.beginPath();
+    sx.moveTo((ox+Math.cos(a)*r0)*k, (oy+Math.sin(a)*r0)*k);
+    sx.lineTo((ox+Math.cos(a-w)*maxR)*k, (oy+Math.sin(a-w)*maxR)*k);
+    sx.lineTo((ox+Math.cos(a+w)*maxR)*k, (oy+Math.sin(a+w)*maxR)*k);
+    sx.fill();
+  }
+  sx.globalAlpha = 1;
+  // 画面の縁を走るスパーク
+  const bolts = intensity > .25 ? 1 + Math.floor(Math.random()*intensity*4) : (Math.random()<.3 ? 1 : 0);
+  for(let i=0;i<bolts;i++){
+    const edge = Math.floor(Math.random()*4), w = innerWidth, h = innerHeight;
+    const sxp = edge===0 ? Math.random()*w : edge===1 ? w : edge===2 ? Math.random()*w : 0;
+    const syp = edge===0 ? 0 : edge===1 ? Math.random()*h : edge===2 ? h : Math.random()*h;
+    const f = 0.25 + Math.random()*0.25;
+    bolt(sxp, syp, sxp+(ox-sxp)*f, syp+(oy-syp)*f, speedColor);
+  }
+  // 手元の球から漏れ出してバチバチ走るスパーク
+  if(holding){
+    const el = phase==='blue' ? orbB : orbR, rw = el.getBoundingClientRect().width, [hx, hy] = centerOf(el);
+    const m = 1 + Math.floor(Math.random()*(1 + intensity*4));
+    for(let i=0;i<m;i++){
+      const a = Math.random()*6.283, L = rw*0.5 + 20 + Math.random()*70*intensity;
+      bolt(hx + Math.cos(a)*rw*0.4, hy + Math.sin(a)*rw*0.4, hx + Math.cos(a)*L, hy + Math.sin(a)*L, speedColor, 6, 12);
+    }
+  }
+}
+
+/* ===== Canvas 描画共通 ===== */
+const PAL = { blue:[70,180,255], red:[255,70,100], purple:[190,90,255], bp:[100,100,255], rp:[255,80,180] };
+let fusionPal = PAL.purple, fusionMode = 'zero';
+const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+function fitCanvas(c, w, h){
+  const k = devicePixelRatio, W = Math.round(w*k), H = Math.round(h*k);
+  if(c.width !== W || c.height !== H){ c.width = W; c.height = H; }
+  const g = c.getContext('2d'); g.setTransform(k, 0, 0, k, 0, 0); return g;
+}
+
+/* ===== エネルギー球：白熱コア＋渦巻く光の粒子＋加算合成の発光 ===== */
+const ocv = $('orbCv');
+function drawEnergy(g, x, y, r, col, t, power){
+  if(r < 1.5) return;
+  g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round';
+  // 外側の発光
+  let gr = g.createRadialGradient(x, y, r*0.3, x, y, r*2.6);
+  gr.addColorStop(0, rgba(col, .5)); gr.addColorStop(.35, rgba(col, .18)); gr.addColorStop(1, rgba(col, 0));
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, r*2.6, 0, 7); g.fill();
+  // 球殻
+  gr = g.createRadialGradient(x, y, 0, x, y, r);
+  gr.addColorStop(0, 'rgba(255,255,255,.95)'); gr.addColorStop(.3, rgba(col, .9)); gr.addColorStop(.75, rgba(col, .35)); gr.addColorStop(1, rgba(col, 0));
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+  // 三本の螺旋の腕
+  for(let k=0;k<3;k++){
+    g.beginPath();
+    for(let s=0; s<=1.0001; s+=0.05){
+      const a = t*7 + k*2.094 + s*5.5, rr = r*(0.15 + 0.95*s);
+      const px = x + Math.cos(a)*rr, py = y + Math.sin(a)*rr*0.92;
+      s ? g.lineTo(px, py) : g.moveTo(px, py);
+    }
+    g.strokeStyle = rgba(col, .55); g.lineWidth = Math.max(1, r*0.07); g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = Math.max(.6, r*0.025); g.stroke();
+  }
+  // 外から内へ吸い込まれながら高速回転する光の粒子（30〜50個）
+  const N = Math.round(30 + 20*Math.min(1, r/70));
+  for(let i=0;i<N;i++){
+    const ph = (t*0.9 + i/N) % 1, rr = r*(1.25 - ph*1.05), a = t*9 + i*2.399 + ph*7;
+    const px = x + Math.cos(a)*rr, py = y + Math.sin(a)*rr*0.9;
+    const px2 = x + Math.cos(a-0.35)*rr*1.04, py2 = y + Math.sin(a-0.35)*rr*0.94;
+    g.strokeStyle = i%3 ? rgba(col, .9) : 'rgba(255,255,255,.95)';
+    g.lineWidth = Math.max(1, r*0.035) * (1 - ph*0.5);
+    g.beginPath(); g.moveTo(px2, py2); g.lineTo(px, py); g.stroke();
+  }
+  // 白熱するコア
+  gr = g.createRadialGradient(x, y, 0, x, y, r*0.42);
+  gr.addColorStop(0, '#fff'); gr.addColorStop(.6, 'rgba(255,255,255,.5)'); gr.addColorStop(1, rgba(col, 0));
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, r*0.42, 0, 7); g.fill();
+  // 膨張するほど増える表面スパーク
+  const sparks = Math.floor(power*5 + Math.random()*power*3);
+  for(let i=0;i<sparks;i++){
+    const a = Math.random()*6.283, L = r*(0.5 + Math.random()*0.9*power);
+    g.beginPath(); g.moveTo(x + Math.cos(a)*r*0.8, y + Math.sin(a)*r*0.8);
+    for(let j=1;j<=5;j++){
+      const d = r*0.8 + L*j/5;
+      g.lineTo(x + Math.cos(a)*d + (Math.random()-.5)*r*0.25, y + Math.sin(a)*d + (Math.random()-.5)*r*0.25);
+    }
+    g.strokeStyle = rgba(col, .9); g.lineWidth = 2; g.stroke();
+    g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = .8; g.stroke();
+  }
+  g.restore();
+}
+function drawOrbs(t){
+  const a = arena.getBoundingClientRect(), g = fitCanvas(ocv, a.width, a.height);
+  g.clearRect(0, 0, a.width, a.height);
+  for(const [el, col] of [[orbR, PAL.red], [orbB, PAL.blue], [fusion, fusionPal]]){
+    if(el.style.opacity === '0') continue;
+    const r = el.getBoundingClientRect(); if(r.width < 3) continue;
+    const active = holding && ((phase==='blue' && el===orbB) || (phase==='red' && el===orbR));
+    const power = el===fusion ? 1 : active ? value/100 : 0.15;
+    const x = r.left + r.width/2 - a.left, y = r.top + r.height/2 - a.top;
+    if(el===fusion && fusionMode==='zero') drawZero(g, x, y, r.width/2, t);
+    else drawEnergy(g, x, y, r.width/2, col, t, power);
+  }
+}
+
+/* ===== 背景：ダークファンタジーの領域空間 ===== */
+const bgv = $('bgCv');
+const ash = Array.from({length:80}, () => ({ x:Math.random(), y:Math.random(), s:.6+Math.random()*2.4, v:.01+Math.random()*.035, ph:Math.random()*6 }));
+const fogs = Array.from({length:7}, () => ({ x:Math.random(), y:.36+Math.random()*.6, r:.35+Math.random()*.4, v:(Math.random()-.5)*.03 }));
+const ruins = (() => { const arr = []; let x = -0.02; while(x < 1.02){ const w = .02+Math.random()*.05; arr.push([x, w, .04+Math.random()*.13, Math.random()]); x += w + Math.random()*.04; } return arr; })();
+let smoke = [];
+// 床に浮かぶ魔法陣
+function sigil(g, x, y, rad, t, col){
+  g.save(); g.translate(x, y); g.scale(1, 0.28); g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, rad); gr.addColorStop(0, rgba(col, .22)); gr.addColorStop(1, rgba(col, 0));
+  g.fillStyle = gr; g.beginPath(); g.arc(0, 0, rad, 0, 7); g.fill();
+  g.strokeStyle = rgba(col, .5); g.lineWidth = 1.6;
+  [1, .82, .5].forEach(f => { g.beginPath(); g.arc(0, 0, rad*f, 0, 7); g.stroke(); });
+  g.rotate(t*0.4);
+  for(let i=0;i<24;i++){ g.rotate(Math.PI/12); g.beginPath(); g.moveTo(rad*0.84, 0); g.lineTo(rad*(i%2 ? 0.93 : 0.98), 0); g.stroke(); }
+  for(let tri=0; tri<2; tri++){
+    g.beginPath();
+    for(let i=0;i<=3;i++){ const an = tri*Math.PI/3 + i*Math.PI*2/3; i ? g.lineTo(Math.cos(an)*rad*0.8, Math.sin(an)*rad*0.8) : g.moveTo(Math.cos(an)*rad*0.8, Math.sin(an)*rad*0.8); }
+    g.stroke();
+  }
+  g.restore();
+}
+function drawBg(dt, t){
+  const a = arena.getBoundingClientRect(), W = a.width, H = a.height, g = fitCanvas(bgv, W, H), hz = H*0.44;
+  // 深い領域のグラデーション
+  let gr = g.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, '#030006'); gr.addColorStop(.3, '#12041c'); gr.addColorStop(.44, '#2a0a2e'); gr.addColorStop(.445, '#0d0412'); gr.addColorStop(1, '#020004');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  // 黒い太陽と紅いコロナ
+  const sx0 = W*0.3, sy0 = H*0.26, sr = Math.min(W, H)*0.13*(1 + Math.sin(t*1.3)*0.02);
+  g.globalCompositeOperation = 'lighter';
+  gr = g.createRadialGradient(sx0, sy0, sr*0.9, sx0, sy0, sr*2.8);
+  gr.addColorStop(0, 'rgba(210,40,90,.6)'); gr.addColorStop(.25, 'rgba(120,20,90,.25)'); gr.addColorStop(1, 'rgba(40,0,40,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(sx0, sy0, sr*2.8, 0, 7); g.fill();
+  g.globalCompositeOperation = 'source-over';
+  g.fillStyle = '#020003'; g.beginPath(); g.arc(sx0, sy0, sr, 0, 7); g.fill();
+  g.strokeStyle = 'rgba(255,130,170,.65)'; g.lineWidth = 1.5; g.stroke();
+  // 地平線の廃墟シルエット
+  g.fillStyle = '#060209';
+  for(const [x, w, h, j] of ruins){
+    g.beginPath(); g.moveTo(x*W, hz); g.lineTo(x*W, hz - h*H); g.lineTo((x + w*0.4)*W, hz - h*H*(0.85 + j*0.3));
+    g.lineTo((x + w)*W, hz - h*H*0.9); g.lineTo((x + w)*W, hz); g.fill();
+  }
+  // 消失点から伸びる床の燐光
+  g.save(); g.globalCompositeOperation = 'lighter'; g.lineWidth = 1;
+  for(let i=-8;i<=8;i++){
+    const ex = W*0.5 + i*W*0.22; gr = g.createLinearGradient(W*0.5, hz, ex, H);
+    gr.addColorStop(0, 'rgba(150,60,220,0)'); gr.addColorStop(1, 'rgba(150,60,220,.16)');
+    g.strokeStyle = gr; g.beginPath(); g.moveTo(W*0.5, hz); g.lineTo(ex, H); g.stroke();
+  }
+  for(let j=1;j<7;j++){ const yy = hz + (H - hz)*Math.pow(j/7, 1.8); g.strokeStyle = `rgba(150,60,220,${0.03 + j*0.014})`; g.beginPath(); g.moveTo(0, yy); g.lineTo(W, yy); g.stroke(); }
+  g.restore();
+  // 敵と主人公の足元の魔法陣
+  const er = enemy.getBoundingClientRect(), hr = hero.getBoundingClientRect();
+  sigil(g, er.left + er.width/2 - a.left, er.bottom - a.top - er.height*0.03, er.width*0.62, t, ENEMY_FX[STAGES[stageIdx].art].rgb);
+  sigil(g, hr.left + hr.width/2 - a.left, H*0.99, hr.width*0.9, -t*0.6, [150,80,255]);
+  // 流れる霧
+  for(const f of fogs){
+    f.x += f.v*dt; if(f.x < -0.5) f.x = 1.5; if(f.x > 1.5) f.x = -0.5;
+    const fx = f.x*W, fy = f.y*H, fr = f.r*W;
+    gr = g.createRadialGradient(fx, fy, 0, fx, fy, fr); gr.addColorStop(0, 'rgba(110,80,140,.14)'); gr.addColorStop(1, 'rgba(110,80,140,0)');
+    g.fillStyle = gr; g.fillRect(fx - fr, fy - fr, fr*2, fr*2);
+  }
+  // 敵から立ち上る黒い瘴気
+  if(enemy.style.opacity !== '0' && Math.random() < 0.5)
+    smoke.push({ x:er.left - a.left + er.width*(0.2 + Math.random()*0.6), y:er.bottom - a.top - er.height*0.1, r:er.width*0.08, life:1, vx:(Math.random()-.5)*8 });
+  smoke = smoke.filter(s => s.life > 0);
+  for(const s of smoke){
+    s.life -= dt*0.6; s.y -= dt*28; s.x += s.vx*dt; s.r += dt*14;
+    gr = g.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r); gr.addColorStop(0, `rgba(0,0,0,${0.4*s.life})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(s.x - s.r, s.y - s.r, s.r*2, s.r*2);
+  }
+  // 舞い散る黒い粒子（縁だけ微かに照らされる）
+  for(const p of ash){
+    p.y -= p.v*dt; p.x += Math.sin(t*0.8 + p.ph)*0.0006;
+    if(p.y < -0.02){ p.y = 1.02; p.x = Math.random(); }
+    g.fillStyle = 'rgba(190,140,210,.28)'; g.fillRect(p.x*W, p.y*H - 0.8, p.s*1.6, p.s);
+    g.fillStyle = 'rgba(4,0,6,.95)'; g.fillRect(p.x*W, p.y*H, p.s*1.6, p.s);
+  }
+  // 周辺減光
+  gr = g.createRadialGradient(W/2, H*0.45, Math.min(W, H)*0.3, W/2, H*0.45, Math.max(W, H)*0.75);
+  gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.75)');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+}
+
+/* ===== 紫電：重力の零点（特異点）と紫の稲妻 =====
+   青と赤はぶつけず連星のように回して打ち消し合わせ、生まれた零点を敵の芯へ穿つ */
+const bmv = $('beamCv');
+let strike = null, sing = null, waves = [];
+// 中点変位法でギザギザの稲妻経路を作る
+function boltPath(x1, y1, x2, y2, disp){
+  let pts = [[x1, y1], [x2, y2]];
+  for(let it=0; it<6; it++){
+    const np = [pts[0]];
+    for(let i=1;i<pts.length;i++){
+      const [ax, ay] = pts[i-1], [bx, by] = pts[i], dx = bx-ax, dy = by-ay, len = Math.hypot(dx, dy) || 1;
+      const off = (Math.random()-.5)*disp;
+      np.push([(ax+bx)/2 - dy/len*off, (ay+by)/2 + dx/len*off], [bx, by]);
+    }
+    pts = np; disp *= 0.55;
+  }
+  return pts;
+}
+function strokePath(g, pts, col, w){
+  g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y));
+  g.strokeStyle = rgba(col, .22); g.lineWidth = w*4; g.stroke();
+  g.strokeStyle = rgba(col, .85); g.lineWidth = w*1.6; g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = Math.max(1, w*0.6); g.stroke();
+}
+// 手元の零点：青と赤が連星のように回り、中心に黒い点が生まれる
+function drawZero(g, x, y, r, t){
+  const tilt = -0.3, c = Math.cos(tilt), s = Math.sin(tilt);
+  g.save(); g.globalCompositeOperation = 'lighter';
+  const gr = g.createRadialGradient(x, y, r*0.2, x, y, r*2.4);
+  gr.addColorStop(0, rgba(PAL.purple, .5)); gr.addColorStop(1, rgba(PAL.purple, 0));
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, r*2.4, 0, 7); g.fill();
+  g.strokeStyle = 'rgba(220,190,255,.35)'; g.lineWidth = 1.2; g.beginPath(); g.ellipse(x, y, r*0.95, r*0.38, tilt, 0, 7); g.stroke();
+  g.restore();
+  for(let k=0;k<2;k++){
+    const a = t*9 + k*Math.PI, ox = Math.cos(a)*r*0.95, oy = Math.sin(a)*r*0.38;
+    drawEnergy(g, x + ox*c - oy*s, y + ox*s + oy*c, r*0.36, k ? PAL.red : PAL.blue, t, 0.4);
+  }
+  g.save();
+  g.fillStyle = '#000'; g.beginPath(); g.arc(x, y, r*0.16, 0, 7); g.fill();
+  g.globalCompositeOperation = 'lighter'; g.strokeStyle = 'rgba(240,220,255,.95)'; g.lineWidth = 1.6;
+  g.beginPath(); g.arc(x, y, r*0.18, 0, 7); g.stroke();
+  g.restore();
+}
+function drawStrike(now){
+  const g = fitCanvas(bmv, innerWidth, innerHeight);
+  g.clearRect(0, 0, innerWidth, innerHeight);
+  g.save(); g.globalCompositeOperation = 'lighter'; g.lineJoin = 'round'; g.lineCap = 'round';
+  // 紫の稲妻（毎フレーム形を変えて明滅させる）
+  if(strike && Math.random() > 0.12){
+    const { from, to, col, w, n } = strike, d = Math.hypot(to[0]-from[0], to[1]-from[1]);
+    const dir = Math.atan2(to[1]-from[1], to[0]-from[0]);
+    for(let k=0;k<n;k++){
+      const main = boltPath(from[0], from[1], to[0] + (Math.random()-.5)*20, to[1] + (Math.random()-.5)*20, d*0.35);
+      strokePath(g, main, col, w*(k ? 0.6 : 1));
+      for(let b=0;b<3;b++){
+        const p = main[4 + Math.floor(Math.random()*(main.length-8))];
+        const a = dir + (Math.random()-.5)*1.6, L = d*(0.12 + Math.random()*0.2);
+        strokePath(g, boltPath(p[0], p[1], p[0] + Math.cos(a)*L, p[1] + Math.sin(a)*L, L*0.4), col, w*0.4);
+      }
+    }
+    const gr = g.createRadialGradient(from[0], from[1], 0, from[0], from[1], w*10);
+    gr.addColorStop(0, 'rgba(255,255,255,.9)'); gr.addColorStop(1, rgba(col, 0));
+    g.fillStyle = gr; g.beginPath(); g.arc(from[0], from[1], w*10, 0, 7); g.fill();
+  }
+  // 敵の芯に穿たれた零点（特異点）
+  if(sing){
+    const grow = Math.min(1, (now - sing.start)/450), shrink = sing.end ? Math.max(0, 1 - (now - sing.end)/320) : 1;
+    const r = sing.max * (1 - Math.pow(1 - grow, 3)) * shrink, { x, y } = sing, col = PAL.purple;
+    if(r > 0.5){
+      let gr = g.createRadialGradient(x, y, r*0.8, x, y, r*3);
+      gr.addColorStop(0, rgba(col, .55)); gr.addColorStop(1, rgba(col, 0));
+      g.fillStyle = gr; g.beginPath(); g.arc(x, y, r*3, 0, 7); g.fill();
+      // 吸い込まれていく空間の同心円
+      for(let i=0;i<4;i++){
+        const f = ((now/700) + i/4) % 1;
+        g.strokeStyle = `rgba(220,190,255,${.35*(1-f)})`; g.lineWidth = 1.5;
+        g.beginPath(); g.arc(x, y, r*(3.2 - f*2.2), 0, 7); g.stroke();
+      }
+      // 傾いた降着円盤：奥側の半周（核の後ろ）→ 黒い核 → 手前側の半周（核の前）の順に重ねる
+      const disk = (a0, a1) => {
+        g.lineWidth = r*0.34; g.strokeStyle = rgba(col, .35); g.beginPath(); g.ellipse(x, y, r*1.75, r*0.46, -0.35, a0, a1); g.stroke();
+        g.lineWidth = r*0.16; g.strokeStyle = rgba(col, .9);   g.beginPath(); g.ellipse(x, y, r*1.7, r*0.44, -0.35, a0, a1); g.stroke();
+        g.lineWidth = r*0.05; g.strokeStyle = 'rgba(255,255,255,.85)'; g.beginPath(); g.ellipse(x, y, r*1.66, r*0.43, -0.35, a0, a1); g.stroke();
+        // 円盤の上を回る明るい光の塊
+        for(let i=0;i<8;i++){
+          const s = (now/160 + i*0.785) % 6.283; if(s < a0 || s > a1) continue;
+          g.lineWidth = r*0.2; g.strokeStyle = 'rgba(255,255,255,.9)';
+          g.beginPath(); g.ellipse(x, y, r*1.7, r*0.44, -0.35, s, s + 0.18); g.stroke();
+        }
+      };
+      disk(Math.PI, Math.PI*2);
+      // 黒い核と光子リング
+      g.globalCompositeOperation = 'source-over';
+      g.fillStyle = '#000'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+      g.globalCompositeOperation = 'lighter';
+      g.strokeStyle = 'rgba(240,220,255,.95)'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, r*1.04, 0, 7); g.stroke();
+      disk(0, Math.PI);
+    }
+  }
+  // 零点が閉じた後の衝撃波
+  waves = waves.filter(wv => now - wv.start < 800);
+  for(const wv of waves){
+    const f = (now - wv.start)/800, R = wv.max*(1 - Math.pow(1 - f, 2));
+    g.strokeStyle = rgba(PAL.purple, .8*(1-f)); g.lineWidth = 10*(1-f) + 1;
+    g.beginPath(); g.ellipse(wv.x, wv.y, R, R*0.55, 0, 0, 7); g.stroke();
+    g.strokeStyle = `rgba(255,255,255,${.7*(1-f)})`; g.lineWidth = 2; g.stroke();
+  }
+  g.restore();
+}
+// 融合点から敵へ稲妻を走らせる（失敗時は色付きの細い一本だけ）
+async function shootStrike(col, w, n, hold){
+  // 融合点は零の頭の向こう側にあるので、稲妻は敵側の縁から出して頭の上を横切らないようにする
+  const [fx, fy] = centerOf(fusion), to = enemyCenter(), rr = fusion.getBoundingClientRect().width*0.45;
+  const d = Math.hypot(to[0]-fx, to[1]-fy) || 1;
+  strike = { from:[fx + (to[0]-fx)/d*rr, fy + (to[1]-fy)/d*rr], to, col, w, n };
+  await sleep(hold);
+  strike = null;
+}
+
+/* ===== 擬音「ゴゴゴ」 ===== */
+let lastGogo = 0;
+function gogo(){
+  const g = document.createElement('div');
+  g.className = 'gogo pop';
+  g.textContent = pick(['ゴゴゴ','ゴゴゴゴ','ズズズ','ギュイイン','ドドド']);
+  const side = Math.random() < .5;
+  g.style.left = (side ? 3 + Math.random()*14 : 64 + Math.random()*16) + '%';
+  g.style.top = (48 + Math.random()*30) + '%';
+  g.style.setProperty('--r', (side ? -1 : 1) * (8 + Math.random()*14) + 'deg');
+  g.style.fontSize = (20 + value*0.14) + 'px';
+  arena.appendChild(g);
+  setTimeout(() => g.remove(), 750);
+}
+
+/* ===== ゲージ ===== */
+function orbSize(v){ const w = arena.clientWidth; return 8 + (w*0.30 - 8) * v/100; }
+function setOrb(el, v){ const s = orbSize(v); el.style.width = el.style.height = s+'px'; }
+// 高出力ほど爆速：速度 = (基礎 + 加速×(値/100)^5) × ステージ倍率  [単位/秒]
+const SPEED_BASE = 40, SPEED_BOOST = 260;
+const gaugeSpeed = v => (SPEED_BASE + SPEED_BOOST * Math.pow(v/100, 5)) * STAGES[stageIdx].speed;
+let gv = 1, gdir = 1, gt = 0;
+function resetGauge(){ gv = 1; gdir = 1; gt = performance.now(); }
+// 4ms刻みで積分して現在時刻まで進める（フレーム落ちしても離した瞬間の値が正確）
+function currentValue(){
+  const now = performance.now();
+  while(gt < now){
+    const step = Math.min(4, now - gt);
+    gv += gdir * gaugeSpeed(gv) * step / 1000;
+    if(gv >= 100){ gv = 200 - gv; gdir = -1; }
+    else if(gv <= 1){ gv = 2 - gv; gdir = 1; }
+    gt += step;
+  }
+  return Math.min(100, Math.max(1, Math.round(gv)));
+}
+
+function loop(ts){
+  const dt = Math.min(0.05, (ts - lastTs)/1000 || 0); lastTs = ts;
+  if(holding){
+    value = currentValue();
+    const el = phase==='blue' ? orbB : orbR;
+    setOrb(el, value);
+    num.textContent = value;
+    meterFill.style.width = value + '%';
+    updateHum(value);
+    emit(el, phase==='blue' ? '#7fd0ff' : '#ff8fa3', 2 + Math.floor(value/30));
+    speedCenter = centerOf(el);
+    speedFade = Math.min(1, speedFade + dt*4);
+    if(ts - lastGogo > 260 - value){ lastGogo = ts; gogo(); }
+    app.classList.toggle('rumble', value > 70);
+  }else{
+    speedFade = Math.max(0, speedFade - dt*5);
+  }
+  if(!frozen){                 // 時間停止中は最後のフレームのまま止める
+    drawBg(dt, ts/1000);
+    drawOrbs(ts/1000);
+    drawSpeed(speedFade * (holding ? 0.35 + value/154 : 1));
+    drawParts(dt);
+  }
+  drawStrike(performance.now());
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* ===== 入力 ===== */
+function setAura(c){ hero.classList.remove('aura-blue','aura-red','aura-purple'); if(c) hero.classList.add('aura-' + c); }
+function press(e){
+  e.preventDefault();
+  if(holding || (phase!=='blue' && phase!=='red')) return;
+  audio();
+  holding = true; resetGauge(); value = 1;
+  speedColor = phase==='blue' ? '#2fa8ff' : '#ff3b5c';
+  btn.classList.add('pressed');
+  (phase==='blue'?orbB:orbR).classList.add('charging');
+  hero.classList.add('charging'); setAura(phase==='blue' ? 'blue' : 'red');
+  say('mainNavi', pick(phase==='blue' ? LINES.chargeB : LINES.chargeR), 'smirk');
+  startHum();
+  try{ btn.setPointerCapture(e.pointerId); }catch(_){}
+}
+function release(){
+  if(!holding) return;
+  value = currentValue();
+  holding = false;
+  const el = phase==='blue' ? orbB : orbR;
+  setOrb(el, value); el.classList.remove('charging');
+  num.textContent = value; meterFill.style.width = value + '%';
+  btn.classList.remove('pressed'); app.classList.remove('rumble');
+  hero.classList.remove('charging'); setAura(null);
+  stopHum(); impact();
+  shake(2);
+  const [ox, oy] = centerOf(el); burst(ox, oy, phase==='blue' ? '#7fd0ff' : '#ff8fa3', 30, 7);
+  if(phase==='blue'){
+    blueVal = value; $('pvB').textContent = blueVal;
+    flash('#2fa8ff', .55);
+    popText('青！', '#2fa8ff', `引力術 出力${blueVal}%`);
+    say('mainNavi', `青は${blueVal}。次はそれに赤をピッタリ合わせるんだ。`, 'smirk');
+    setPhase('red');
+  }else if(phase==='red'){
+    redVal = value; $('pvR').textContent = redVal;
+    flash('#ff3b5c', .55);
+    popText('赤！', '#ff3b5c', `斥力術 出力${redVal}%`);
+    setPhase('judge');
+    judge();
+  }
+}
+btn.addEventListener('pointerdown', press);
+btn.addEventListener('pointerup', release);
+btn.addEventListener('pointercancel', release);
+btn.addEventListener('lostpointercapture', release);
+btn.addEventListener('contextmenu', e => e.preventDefault());
+addEventListener('keydown', e => { if(e.code==='Space' && !e.repeat) press(e); });
+addEventListener('keyup', e => { if(e.code==='Space') release(); });
+addEventListener('blur', release);
+
+/* ===== フェーズ制御 ===== */
+function setPhase(p){
+  phase = p;
+  const st = STAGES[stageIdx];
+  if(p==='blue'){
+    who.textContent='引力・青'; who.style.background='var(--blue)'; who.style.color='var(--line)';
+    btn.classList.remove('redmode'); btn.disabled=false;
+    btn.innerHTML='タメる（青）<small>長押しで膨張 → 離して確定</small>';
+    meterFill.style.background='var(--blue)';
+    ghost.style.display = tolZone.style.display = 'none';
+  }else if(p==='red'){
+    who.textContent='斥力・赤'; who.style.background='var(--red)'; who.style.color='#fff';
+    btn.classList.add('redmode'); btn.disabled=false;
+    btn.innerHTML='タメる（赤）<small>青と同じサイズを狙え！</small>';
+    meterFill.style.background='var(--red)'; meterFill.style.width='0%';
+    num.textContent='0';
+    ghost.style.display = tolZone.style.display = 'block';
+    ghost.style.left = `calc(${blueVal}% - 1px)`;
+    const lo = Math.max(0, blueVal - st.tol), hi = Math.min(100, blueVal + st.tol);
+    tolZone.style.left = lo + '%'; tolZone.style.width = (hi-lo) + '%';
+  }else if(p==='judge'){
+    btn.disabled = true;
+    btn.innerHTML='発動中…';
+  }
+}
+
+const ENEMY_BASE = 'translate(-50%,-100%)';
+function resetArena(){
+  const st = STAGES[stageIdx];
+  $('stageBadge').textContent = 'STAGE ' + (stageIdx+1);
+  $('rules').innerHTML = `誤差 <b>${st.tol}%以内</b><br>平均 <b>${st.power}%以上</b>`;
+  enemyArt.innerHTML = buildEnemy(st.art, 'm'); $('enemyName').textContent = st.enemyName;
+  enemy.style.transition = ''; enemy.style.transform = ENEMY_BASE; enemy.style.opacity = 1;
+  $('crater').classList.remove('on'); $('groove').classList.remove('on');
+  $('hpBar').style.width = '100%';
+  $('pvB').textContent = $('pvR').textContent = '--';
+  thr.style.left = st.power + '%'; thrLbl.textContent = `撃破ライン ${st.power}%`;
+  [orbB, orbR].forEach(o => { o.style.left = o.style.top = ''; o.style.opacity = 1; o.classList.remove('charging'); setOrb(o, 0); });
+  fusion.style.width = fusion.style.height = '0px'; fusion.style.boxShadow = 'none';
+  hero.classList.remove('charging'); setAura(null);
+  blueVal = redVal = null;
+  num.textContent = '0'; meterFill.style.width = '0%';
+  arena.querySelectorAll('.boom,.gogo').forEach(b=>b.remove());
+  say('mainNavi', st.intro, 'smirk');
+  setPhase('blue');
+}
+
+/* ===== 判定・発動 ===== */
+function boomAt(x, y, ch='💥'){
+  const b = document.createElement('div'); b.className='boom'; b.textContent=ch;
+  b.style.left = x; b.style.top = y; arena.appendChild(b);
+  setTimeout(()=>b.remove(), 800);
+}
+// 敵の中心（画面座標）
+const enemyCenter = () => { const r = enemy.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height*0.55]; };
+// 根元from（画面座標）から目標へ向けて、要素を回転配置する
+function aimAt(el, from, to, extra=1, ox=0, oy=0){
+  const dx = to[0]-from[0], dy = to[1]-from[1];
+  el.style.left = (from[0]-ox) + 'px'; el.style.top = (from[1]-oy) + 'px';
+  el.style.height = Math.hypot(dx, dy)*extra + 'px';
+  el.style.transform = `translate(-50%,-100%) rotate(${Math.atan2(dx, -dy)}rad)`;
+}
+
+async function judge(){
+  const st = STAGES[stageIdx];
+  const diff = Math.abs(blueVal - redVal);
+  const avg = (blueVal + redVal) / 2;
+  let kind;
+  if(diff <= st.tol) kind = avg >= st.power ? 'clear' : 'weak';
+  else kind = blueVal > redVal ? 'blue' : 'red';
+
+  const color = kind==='blue' ? '#5b5bff' : kind==='red' ? '#ff3fa8' : '#b84dff';
+  const glow  = kind==='blue' ? '#5b5bffcc' : kind==='red' ? '#ff3fa8cc' : '#c46bffee';
+
+  await sleep(900);
+  say('mainNavi', pick(LINES.judge), 'smirk');
+  // 両手の玉を胸の前へ
+  orbB.style.left = orbR.style.left = '50%';
+  orbB.style.top = orbR.style.top = '12%';
+  jingle([392, 523, 659, 784], 0.09);
+  setAura('purple');
+  speedColor = color; speedCenter = centerOf(fusion); speedFade = 1;
+  await sleep(550);
+  orbB.style.opacity = orbR.style.opacity = 0;
+  const fs = orbSize(avg) * 1.15;
+  fusionPal = kind==='blue' ? PAL.bp : kind==='red' ? PAL.rp : PAL.purple;
+  fusionMode = (kind==='clear' || kind==='weak') ? 'zero' : 'unstable';   // 釣り合えば零点、偏れば不安定な球
+  fusion.style.width = fusion.style.height = fs + 'px';
+  flash(); shake(2); noise(0.4, 0.3, 3000); beep(110, 0.5, 'sawtooth', 0.15, 400);
+  const [fx, fy] = centerOf(fusion);
+  burst(fx, fy, color, 60, 10);
+  if(kind==='clear'){
+    await finisher();
+    showResult(kind, diff, avg);
+    return;
+  }
+  if(kind==='weak') popText('一閃！', '#b84dff', '重力零点「紫電」');
+  else popText('暴走！', color, kind==='blue' ? '引力が強すぎる！' : '斥力が強すぎる！');
+  await sleep(950);
+
+  noise(0.8, 0.35, 1800); beep(900, 0.5, 'sawtooth', 0.12, -800);
+  const beamDone = shootStrike(fusionPal, 1.8, 1, 700);
+  await sleep(250);
+  if(kind==='weak'){
+    enemyArt.classList.remove('hit'); void enemyArt.offsetWidth; enemyArt.classList.add('hit'); shake(1);
+    boomAt('70%','28%','💨');
+    $('hpBar').style.width = Math.max(55, 100 - avg*0.5) + '%';
+    noise(0.3, 0.2, 600); beep(220, 0.3, 'triangle', 0.15, -100);
+    popText('出力不足！', '#9a9aa8', 'かすり傷……', 54);
+  }else if(kind==='blue'){
+    // 引き寄せ → 手元で自爆
+    const [ex, ey] = enemyCenter(), [hx, hy] = centerOf(fusion);
+    enemy.style.transform = `${ENEMY_BASE} translate(${hx-ex}px,${hy-ey}px) scale(1.3)`;
+    beep(600, 0.6, 'sawtooth', 0.12, -500);
+    await sleep(600);
+    flash('#ffb070'); shake(2);
+    const a = arena.getBoundingClientRect();
+    boomAt((hx-a.left)+'px', (hy-a.top)+'px'); burst(hx, hy, '#ff7a3d', 100, 14);
+    noise(1.2, 0.55, 1000);
+    fusion.style.width = fusion.style.height = '0px';
+    popText('自爆！', '#5b5bff', '敵を引き寄せすぎた');
+  }else{
+    // 吹き飛ばし → 無傷
+    enemy.style.transform = `${ENEMY_BASE} translate(120px,-260px) rotate(540deg) scale(.4)`;
+    beep(300, 0.6, 'square', 0.1, 1400);
+    await sleep(500);
+    boomAt('88%','6%','⭐'); shake(1);
+    popText('場外！', '#ff3fa8', '吹き飛ばしただけ（無傷）', 60);
+  }
+  await beamDone;
+  await sleep(900);
+  setAura(null);
+  if(kind==='weak') await cutinLine(LINES.weak, 'oops');
+  else await cutinLine(LINES.miss, 'flat');
+  showResult(kind, diff, avg);
+}
+
+/* ===== アニメ風シネマ演出 ===== */
+const cine=$('cine'), cband=$('cband'), cdark=$('cdark'), chantTxt=$('chantTxt');
+cine.addEventListener('pointerdown', () => { if(cine.classList.contains('active')) fast = true; });
+
+// 失敗時の短いカットイン
+async function cutinLine(text, mood){
+  fast = false; cine.classList.add('active'); cdark.classList.add('on');
+  cband.classList.add('gray'); setMood(cband, mood); chantTxt.textContent = '';
+  cband.classList.add('on'); beep(500, 0.25, 'triangle', 0.12, -250);
+  await sleep(300);
+  await typeInto(chantTxt, text, 45);
+  await sleep(1200);
+  cband.classList.remove('on'); cdark.classList.remove('on');
+  await sleep(250);
+  cband.classList.remove('gray'); cine.classList.remove('active'); fast = false;
+  chantTxt.textContent = '';
+}
+
+// 敵SVGを画像化し、画素単位の粒子に分解する
+// sink を渡すと、粒子はその一点（零点）へ渦を巻いて吸い込まれる
+async function dissolve(svg, sink){
+  const r = svg.getBoundingClientRect(), W = Math.ceil(r.width), H = Math.ceil(r.height);
+  if(!W || !H) return;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d', { willReadFrequently:true });
+  let d = null;
+  try{
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+    await img.decode();
+    g.drawImage(img, 0, 0, W, H);
+    d = g.getImageData(0, 0, W, H).data;
+  }catch(e){ d = null; }
+  const step = 3;
+  for(let y=0; y<H; y+=step) for(let x=0; x<W; x+=step){
+    let col;
+    if(d){ const i = (y*W + x)*4; if(d[i+3] < 128) continue; col = `rgb(${d[i]},${d[i+1]},${d[i+2]})`; }
+    else { if(Math.hypot(x-W/2, y-H/2) > W*0.42 || Math.random() < .5) continue; col = pick(['#555','#888','#b84dff','#3a1466']); }
+    if(Math.random() < .2) col = '#d9a6ff';
+    const px = r.left + x, py = r.top + y;
+    if(sink){
+      const dx = px - sink[0], dy = (py - sink[1])/0.7;
+      parts.push({ x:px, y:py, suck:true, cx:sink[0], cy:sink[1], ang:Math.atan2(dy, dx), rad:Math.hypot(dx, dy),
+        life:1, s:step, delay:Math.random()*0.35, color:col });
+    }else{
+      parts.push({ x:px, y:py, vx:(Math.random()-.3)*1.5, vy:-Math.random()*1.2, life:1, dust:true, s:step,
+        delay:(1 - y/H)*0.5 + Math.random()*0.15, color:col });
+    }
+  }
+}
+
+function showCrater(){
+  const a = arena.getBoundingClientRect(), er = enemy.getBoundingClientRect();
+  const fx = er.left + er.width/2 - a.left, fy = er.bottom - er.height*0.04 - a.top;   // 敵の足元
+  const cr = $('crater');
+  cr.style.left = fx + 'px'; cr.style.top = fy + 'px';
+  cr.classList.add('on');
+  burst(a.left + fx, a.top + fy, '#ff7a3d', 40, 5);
+  for(let i=0;i<3;i++) setTimeout(() => {
+    const s = document.createElement('div'); s.className = 'gogo pop'; s.textContent = pick(['シュウウ…','プスプス','ジュッ']);
+    s.style.left = (fx - 50 + Math.random()*60) + 'px'; s.style.top = (fy - 34 - Math.random()*20) + 'px';
+    s.style.setProperty('--r', (Math.random()*20-10) + 'deg'); s.style.fontSize = '18px';
+    arena.appendChild(s); setTimeout(() => s.remove(), 750);
+  }, i*280);
+}
+
+// 合格時：時間停止 → 零本人のカットイン（キザなセリフ） → 決め台詞 → 極光で削り取り → 決めセリフ
+async function finisher(){
+  const kd = $('kodou'), fin = $('finisher');
+  fast = false; cine.classList.add('active');
+  await sleep(250);
+
+  // 1. 時間停止（ネガ反転＋心音）。融合時のフラッシュが残ったまま反転すると真っ黒になるので先に消す
+  const fl = $('flash'); fl.style.transition = 'none'; fl.style.opacity = 0;
+  frozen = true; document.body.classList.add('timestop');
+  const beat = () => { heartbeat(); kd.classList.remove('on'); void kd.offsetWidth; kd.classList.add('on'); };
+  beat(); await sleep(1000);
+  beat(); await sleep(1100);
+
+  // 2. カットイン＆詠唱
+  cdark.classList.add('on'); cband.classList.remove('gray'); setMood(cband, 'smirk'); chantTxt.textContent = '';
+  cband.classList.add('on'); noise(0.25, 0.25, 5000); beep(1800, 0.15, 'square', 0.08, -1200);
+  await sleep(450);
+  await typeInto(chantTxt, pick(LINES.fire), 50);
+  await sleep(900);
+  cband.classList.remove('on');
+  await sleep(200);
+
+  // 3. 決め台詞（極大筆文字）
+  frozen = false; document.body.classList.remove('timestop');
+  cflash(); fin.classList.remove('on'); void fin.offsetWidth; fin.classList.add('on');
+  finisherSound(); shake(2);
+  await sleep(1900);
+  fin.classList.remove('on'); cdark.classList.remove('on');
+
+  // 4. 紫電：零点を敵の芯へ穿ち、紫の稲妻で縫い止めて特異点へ引きずり込む
+  const [ex, ey] = enemyCenter(), er = enemy.getBoundingClientRect();
+  const strikeDone = shootStrike(PAL.purple, 3.2, 3, 1500);
+  sing = { x:ex, y:ey, max:er.width*0.2, start:performance.now(), end:0 };
+  beamSound(); cflash(); shake(2);
+  fusion.style.width = fusion.style.height = '0px';
+  await sleep(250);
+  await dissolve(enemyArt.querySelector('svg'), [ex, ey]);
+  $('hpBar').style.width = '0%';
+  enemy.style.transition = 'none'; enemy.style.opacity = 0;
+  await sleep(500); shake(2);
+  await strikeDone;
+  // 零点が閉じて衝撃波
+  sing.end = performance.now();
+  await sleep(320);
+  sing = null;
+  waves.push({ x:ex, y:ey, max:Math.max(innerWidth, innerHeight)*0.7, start:performance.now() });
+  showCrater(); flash('#fff', .6); shake(2); noise(0.8, 0.4, 500); beep(60, 0.8, 'sine', 0.3, -20);
+  setAura(null);
+  await sleep(1300);
+
+  // 5. 決めセリフ
+  setMood(cband, 'grin'); chantTxt.textContent = '';
+  cdark.classList.add('on'); cband.classList.add('on');
+  await sleep(350);
+  await typeInto(chantTxt, LINES.done, 70);
+  say('mainNavi', LINES.done, 'grin', '✨');
+  await sleep(1300);
+  cband.classList.remove('on'); cdark.classList.remove('on');
+  await sleep(250);
+  cine.classList.remove('active'); fast = false;
+}
+
+/* ===== リザルト・カットイン ===== */
+const scoreOf = (diff, avg) => Math.round((100 - diff) * avg);
+function showResult(kind, diff, avg){
+  const st = STAGES[stageIdx];
+  const last = stageIdx === STAGES.length - 1;
+  const ci = $('cutin'), band = $('band');
+  let title, sub, bg, line, mood, manpu;
+  if(kind==='clear'){
+    title = last ? 'ALL CLEAR!!' : 'STAGE CLEAR!';
+    sub = last ? '呪いの王、撃破。全5ステージ制覇！' : `${st.enemyName}を撃破！`;
+    bg = '#b84dff'; line = last ? LINES.final : LINES.perfect; mood = 'grin'; manpu = '✨';
+    jingle([523,659,784,1047,784,1047,1319], 0.1);
+  }else{
+    title = 'GAME OVER';
+    sub = kind==='blue' ? '引力暴走：敵を引き寄せて自爆……' : kind==='red' ? '斥力暴走：吹き飛ばしただけ（無傷）' : '出力不足：敵はかすり傷';
+    bg = kind==='blue' ? '#5b5bff' : kind==='red' ? '#ff3fa8' : '#777';
+    line = kind==='weak' ? LINES.weak : LINES.miss;
+    mood = kind==='weak' ? 'oops' : 'flat'; manpu = kind==='weak' ? '💦' : '💢';
+    jingle([392,370,349,330], 0.18, 'triangle');
+  }
+  band.style.background = `repeating-linear-gradient(-60deg,#ffffff22 0 3px,transparent 3px 14px),${bg}`;
+  band.style.animation='none'; void band.offsetWidth; band.style.animation='';
+  ci.querySelectorAll('.navi,.stats,.btns').forEach(el=>{ el.style.animation='none'; void el.offsetWidth; el.style.animation=''; });
+  $('ciTitle').textContent = title; $('ciSub').textContent = sub;
+  const okDiff = diff <= st.tol, okPow = avg >= st.power;
+  $('ciStats').innerHTML =
+    `STAGE ${stageIdx+1}「${st.name}」　スコア <b class="score">${scoreOf(diff, avg)}</b><br>` +
+    `青 <b>${blueVal}</b> ／ 赤 <b>${redVal}</b><br>` +
+    `誤差 <b class="${okDiff?'ok':'ng'}">${diff}%</b>（基準 ${st.tol}%以内）<br>` +
+    `平均 <b class="${okDiff&&okPow?'ok':'ng'}">${avg.toFixed(1)}%</b>（基準 ${st.power}%以上）`;
+
+  const btns = $('ciBtns'); btns.innerHTML = '';
+  const add = (label, cls, fn) => { const b = document.createElement('button'); b.className = 'big pop ' + cls; b.textContent = label; b.onclick = fn; btns.appendChild(b); };
+  if(kind==='clear' && !last) add('次のステージへ ▶', 'b-y', () => { ci.classList.remove('show'); stageIdx++; openIntro(); });
+  if(kind==='clear' && last)  add('もう一度最初から', 'b-y', () => { ci.classList.remove('show'); stageIdx = 0; openIntro(); });
+  if(kind!=='clear')          add('もう一回！', 'b-y', () => { ci.classList.remove('show'); resetArena(); });
+  add('𝕏 で結果をシェア', 'b-x', () => { track('share_x', { stage:stageIdx+1, result:kind }); share(kind, diff, avg, last); });
+  if(kind!=='clear')          add('タイトルへ', 'b-w', () => { ci.classList.remove('show'); stageIdx = 0; resetArena(); $('titleOv').classList.add('show'); });
+  const more = document.createElement('a'); more.className = 'big pop b-more'; more.href = SITE_URL; more.textContent = '🎮 他のゲームを見る';
+  btns.appendChild(more);
+  track(kind==='clear' ? 'stage_clear' : 'game_over', { stage:stageIdx+1, result:kind, score:scoreOf(diff, avg), blue:blueVal, red:redVal });
+  ci.classList.add('show');
+  setTimeout(() => say('ciNavi', line, mood, manpu), 450);
+}
+
+function share(kind, diff, avg, last){
+  const st = STAGES[stageIdx], score = scoreOf(diff, avg);
+  const nums = `青${blueVal}／赤${redVal}（誤差${diff}%・平均${avg.toFixed(1)}%）`;
+  let msg;
+  if(kind==='clear') msg = last
+    ? `【全5ステージ制覇】重力零点「紫電」で呪いの王を撃破！\nスコア${score}　${nums}\n「……はい、お掃除完了。」`
+    : `STAGE${stageIdx+1}「${st.name}」クリア！重力零点「紫電」で${st.enemyName}を撃破！\nスコア${score}　${nums}\n「${LINES.perfect}」`;
+  else {
+    const why = kind==='blue' ? '引力暴走で自爆' : kind==='red' ? '斥力暴走で敵は無傷' : '出力不足でかすり傷';
+    msg = `STAGE${stageIdx+1}「${st.name}」で散った……（${why}）\nスコア${score}　${nums}\n「${kind==='weak' ? LINES.weak : LINES.miss}」`;
+  }
+  msg += '\n『目算で放て！重力零点「紫電」』';
+  const url = location.protocol.startsWith('http') ? location.href.split('#')[0] : '';
+  const q = new URLSearchParams({ text: msg, hashtags: '紫電チャレンジ' });
+  if(url) q.set('url', url);
+  window.open('https://twitter.com/intent/tweet?' + q.toString(), '_blank', 'noopener');
+}
+
+/* =====================================================
+   RED FREE GAMES 共通（他のゲーム・要望フォーム・アクセス解析・HOME）
+===================================================== */
+const SITE_URL = 'https://red-freegames.github.io/';
+// 要望・バグ報告フォーム（共通のGoogleフォーム）。「対象のゲーム」に同じ名前の選択肢を追加すると選択済みで開く
+const GAME_NAME = '目算で放て！重力零点「紫電」';
+const FEEDBACK_VIEW = 'https://docs.google.com/forms/d/e/1FAIpQLSfJ2DevI46AJiB_kUAmPGOvckFRqzzSP_iCVd5qiikxr9SIOg/viewform';
+$('fbTitle').href = $('fbResult').href = `${FEEDBACK_VIEW}?usp=pp_url&entry.2056875219=${encodeURIComponent(GAME_NAME)}`;
+// アクセス解析（Googleアナリティクス4）。本番（github.io）でだけ計測し、画面には何も出さない
+const GA_ID = 'G-FC7LD0DJTQ';
+(function initAnalytics(){
+  if(!GA_ID || !/\.github\.io$/.test(location.hostname)) return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ dataLayer.push(arguments); };
+  gtag('js', new Date()); gtag('config', GA_ID, { page_title:GAME_NAME });
+  const s = document.createElement('script'); s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_ID);
+  document.head.appendChild(s);
+})();
+// ゲーム内の出来事を記録する（失敗しても遊びには影響させない）
+const track = (name, params) => { try{ if(window.gtag) gtag('event', name, params || {}); }catch(e){} };
+
+// HOME：タイトルへ戻る。プレイ中は確認を挟み、発動演出中は押せない（演出の途中で状態を壊さないため）
+function goTitle(){
+  if(holding){ holding = false; stopHum(); btn.classList.remove('pressed'); app.classList.remove('rumble'); }
+  ['introOv','cutin','homeOv'].forEach(id => $(id).classList.remove('show'));
+  stageIdx = 0; resetArena(); $('titleOv').classList.add('show');
+}
+$('homeBtn').onclick = () => {
+  if($('titleOv').classList.contains('show') || phase==='judge' || cine.classList.contains('active')) return;
+  if($('cutin').classList.contains('show') || $('introOv').classList.contains('show')){ goTitle(); return; }
+  $('homeOv').classList.add('show');
+};
+$('homeNo').onclick = () => $('homeOv').classList.remove('show');
+$('homeYes').onclick = () => { track('home_return', { stage:stageIdx+1 }); goTitle(); };
+
+/* ===== 画面遷移 ===== */
+function openIntro(){
+  const st = STAGES[stageIdx];
+  resetArena();
+  $('introStage').textContent = `STAGE ${stageIdx+1} ／ 難易度：${st.diff}`;
+  $('introName').textContent = st.name;
+  $('introArt').innerHTML = buildEnemy(st.art, 'i');
+  $('introRules').innerHTML =
+    `<b>${st.enemyName}</b><br>` +
+    `<i>「${st.taunt}」</i><br>` +
+    `融合条件：青と赤の誤差 <b>${st.tol}%以内</b><br>` +
+    `撃破条件：平均サイズ <b>${st.power}%以上</b><br>` +
+    st.hint;
+  $('introOv').classList.add('show');
+}
+$('startBtn').onclick = () => { audio(); setTimeout(()=>{ beep(660,0.08); setTimeout(()=>beep(990,0.12),80); }, 30); $('titleOv').classList.remove('show'); stageIdx = 0; openIntro(); };
+$('goBtn').onclick = () => {
+  audio(); $('introOv').classList.remove('show');
+  track('game_start', { stage:stageIdx+1 });
+  shake(1); popText('始め！', '#ffe14d', `STAGE ${stageIdx+1}「${STAGES[stageIdx].name}」`, 62); setTimeout(impact, 30);
+};
+$('muteBtn').onclick = () => { muted = !muted; $('muteBtn').textContent = muted ? '🔇' : '🔊'; if(muted) stopHum(); };
+
+resetArena();
+})();
+</script>
+</body>
+</html>
